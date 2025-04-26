@@ -51,7 +51,7 @@ Get the INTERNAL_AGENT_IP for the client-agent (last: 10.0.16.5)
 
 - kubectl get nodes -o wide
 
-SSH into the agent node
+SSH into the agent node (don't forget to change the name of the VM)
 
 - gcloud compute ssh --ssh-key-file ~/.ssh/cloud-computing ubuntu@client-agent-ldw5 --zone europe-west1-b
 - cd ~/memcache-perf
@@ -60,7 +60,7 @@ SSH into the agent node
 
 Open a new terminal
 
-Load memcached and start measuring from client-measure
+Load memcached and start measuring from client-measure (don't forget to change the name of the VM)
 
 - gcloud compute ssh --ssh-key-file ~/.ssh/cloud-computing ubuntu@client-measure-qlzb --zone europe-west1-b
 - cd ~/memcache-perf
@@ -72,9 +72,46 @@ Run the first measurements:
 - --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 \
 - --scan 5000:80000:5000
 
-If everything works fine, run the script to make measurements and saves the result to csv files. Replace the IPs in the script before running it.
+To save results to a csv file in the current folder:
+Experiment 1 (baseline):
 
-- gcloud compute scp run_experiments.sh ubuntu@client-measure-qlzb:~/memcache-perf --zone europe-west1-b (replace the client-measure name)
+- ./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > baseline.csv
+  Pull result locally (the csv is currently in the VM): don't forget to change the name of the VM
+  Run locally:
+- gcloud compute scp ubuntu@client-measure-qlzb:~/memcache-perf/file_name.csv ./results/ --zone europe-west1-b
 
-- chmod +x run_experiments.sh
-- bash run_experiments.sh
+Baseline:
+./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > baseline_run1.csv
+
+CPU interference:
+on laptop
+kubectl create -f interference/ibench-cpu.yaml
+
+inside VM:
+./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > cpu_run1.csv
+
+on laptop
+kubectl delete pod ibench-cpu
+
+l1d interference:
+./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > l1d_run1.csv
+
+l1i interference
+kubectl create -f interference/ibench-l1i.yaml
+./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > l1i_run1.csv
+kubectl delete pod ibench-l1i
+
+l2
+kubectl create -f interference/ibench-l2.yaml
+./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > l2_run1.csv
+kubectl delete pod ibench-l2
+
+llc
+kubectl create -f interference/ibench-llc.yaml
+./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > llc_run1.csv
+kubectl delete pod ibench-llc
+
+membw
+kubectl create -f interference/ibench-membw.yaml
+./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > membw_run1.csv
+kubectl delete pod ibench-membw
