@@ -153,7 +153,7 @@ kops delete cluster part1.k8s.local --yes
 ```
 
 # Part2a
-Do the same thing as above until (included)
+Do the same thing as above up to (included)
 ```
 kubectl get nodes -o wide
 ```
