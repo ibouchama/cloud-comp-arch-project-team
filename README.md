@@ -4,7 +4,7 @@ To set-up the environment, create a new bucket and a new cluster within, run the
 - bash create_bucket.sh
 - gcloud auth login
 - gcloud auth application-default login
-- bash create_cluster.sh
+- `bash create_cluster.sh` (or `bash create_cluster_2a.sh` for part2a)
 
 If you see the following retry on the terminal:
 ```
@@ -31,12 +31,12 @@ Once you see your master (and parsec-server node) transition to `Ready`, our `va
 After the API server is healthy, kops validate will stop retrying and report your cluster as ready.
 
 \
-  If you encounter an error when running the above, try the following set of commands:
-- - gcloud auth login
-- - gcloud auth application-default login
-- - source env_setup.sh
-- - export PROJECT=$(gcloud config get-value project)
-- - export KOPS_STATE_STORE=gs://cca-eth-2025-group-94-ibouchama/
+  If you encounter an error when `bash create_cluster.sh`, try the following set of commands:
+- gcloud auth login
+- gcloud auth application-default login
+- source env_setup.sh
+- export PROJECT=$(gcloud config get-value project)
+- export KOPS_STATE_STORE=gs://cca-eth-2025-group-94-ibouchama/
 
 Your cluster should now be created. Verify with the following command and get the names of the vms:
 
@@ -79,6 +79,7 @@ Get the INTERNAL_AGENT_IP for the client-agent (last: 10.0.16.5)
 
 - kubectl get nodes -o wide
 
+# Part1
 SSH into the agent node (don't forget to change the name of the VM)
 
 - gcloud compute ssh --ssh-key-file ~/.ssh/cloud-computing ubuntu@client-agent-ldw5 --zone europe-west1-b
@@ -151,7 +152,7 @@ IMPORTANT: you must delete your cluster when you are not using it! Otherwise, yo
 kops delete cluster part2a.k8s.local --yes
 ```
 
-# Part2
+# Part2a
 Do the same thing as above until (included)
 ```
 kubectl get nodes -o wide
@@ -166,12 +167,50 @@ gcloud compute ssh --ssh-key-file ~/.ssh/cloud-computing ubuntu@parsec-server-xx
 And now, you're in the `parsec-server` VM!
 
 In another terminal of your laptop (in the same directory where you did your `git clone` of the repo and sourced `env_setup.sh`), make sure that the jobs can be scheduled successfully, run the following command in order to
-assign the appropriate label to the parsec node
-`kubectl label nodes parsec-server-xxxx cca-project-nodetype=parsec`
+assign the appropriate label to the parsec node `kubectl label nodes parsec-server-xxxx cca-project-nodetype=parsec`
 
+If encountering `node/parsec-server-vkg8 not labeled` as output,
+Then
+1. `kubectl config current-context`
+2. `kubectl get nodes`
+3. `kubectl label node parsec-server-vkg8 cca-project-nodetype=parsec`
+4. `kubectl get node parsec-server-vkg8 --show-labels`
+If you get the output
+```
+NAME                 STATUS   ROLES   AGE   VERSION   LABELS
+parsec-server-vkg8   Ready    node    39m   v1.31.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=n2-standard-2,beta.kubernetes.io/os=linux,cca-project-nodetype=parsec,cloud.google.com/metadata-proxy-ready=true,failure-domain.beta.kubernetes.io/region=europe-west1,failure-domain.beta.kubernetes.io/zone=europe-west1-b,kops.k8s.io/instancegroup=nodes-europe-west1-b,kubernetes.io/arch=amd64,kubernetes.io/hostname=parsec-server-vkg8,kubernetes.io/os=linux,node-role.kubernetes.io/node=,node.kubernetes.io/instance-type=n2-standard-2,topology.gke.io/zone=europe-west1-b,topology.kubernetes.io/region=europe-west1,topology.kubernetes.io/zone=europe-west1-b
+```
+
+Then it simply means: all that “not labeled” noise is just kubectl telling you “no change” — the label was already there (kops applied it for you from your `nodeLabels`: stanza). 
+So everything is fine.
+
+\
 Then
 ```
 kubectl create -f interference/ibench-cpu.yaml # Wait for interference to start
 kubectl create -f parsec-benchmarks/part2a/parsec-dedup.yaml
 ```
 
+\
+Then execute the CPU interference script to compute the CPU_interference_3times_avg
+```
+chmod +x run_part2a_interference_3x_avg.sh
+./run_part2a_interference_3x_avg.sh
+```
+The averages are in `results2a_interference_3x_avg` folder.
+
+\
+Then execute the baseline script to compute the baseline_3times_avg
+```
+chmod +x run_part2a_baseline_3x_avg.sh
+./run_part2a_baseline_3x_avg.sh
+```
+Each run's baseline (`real`) value is in `results2a_baseline_3x_avg` folder.
+
+\
+Finally, the computation result is in `result2a_my_computation_for_avg.txt` .
+
+Last but not least, DELETE THE CLUSTER!!!!!!
+```
+kops delete cluster part2a.k8s.local --yes
+```
