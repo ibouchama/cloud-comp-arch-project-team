@@ -1,0 +1,159 @@
+> ./run_part2a_baseline_3x_avg.sh
+Using kubectl context: part2a.k8s.local
+
+=== Baseline 3× for parsec-blackscholes ===
+-> Run #1
+job.batch/parsec-blackscholes created
+job.batch/parsec-blackscholes condition met
+   logs → results2a_baseline_3x_avg/parsec-blackscholes_run1.log
+   real_time = 0.000s
+job.batch "parsec-blackscholes" deleted
+-> Run #2
+job.batch/parsec-blackscholes created
+job.batch/parsec-blackscholes condition met
+   logs → results2a_baseline_3x_avg/parsec-blackscholes_run2.log
+   real_time = 0.000s
+job.batch "parsec-blackscholes" deleted
+-> Run #3
+job.batch/parsec-blackscholes created
+job.batch/parsec-blackscholes condition met
+   logs → results2a_baseline_3x_avg/parsec-blackscholes_run3.log
+   real_time = 0.000s
+job.batch "parsec-blackscholes" deleted
+0.000
+>>> parsec-blackscholes baseline avg = 0.000s
+
+=== Baseline 3× for parsec-canneal ===
+-> Run #1
+job.batch/parsec-canneal created
+job.batch/parsec-canneal condition met
+   logs → results2a_baseline_3x_avg/parsec-canneal_run1.log
+   real_time = 0.000s
+job.batch "parsec-canneal" deleted
+-> Run #2
+job.batch/parsec-canneal created
+job.batch/parsec-canneal condition met
+   logs → results2a_baseline_3x_avg/parsec-canneal_run2.log
+   real_time = 0.000s
+job.batch "parsec-canneal" deleted
+-> Run #3
+job.batch/parsec-canneal created
+job.batch/parsec-canneal condition met
+   logs → results2a_baseline_3x_avg/parsec-canneal_run3.log
+   real_time = 0.000s
+job.batch "parsec-canneal" deleted
+0.000
+>>> parsec-canneal baseline avg = 0.000s
+
+=== Baseline 3× for parsec-dedup ===
+-> Run #1
+job.batch/parsec-dedup created
+job.batch/parsec-dedup condition met
+   logs → results2a_baseline_3x_avg/parsec-dedup_run1.log
+   real_time = 0.000s
+job.batch "parsec-dedup" deleted
+-> Run #2
+job.batch/parsec-dedup created
+job.batch/parsec-dedup condition met
+   logs → results2a_baseline_3x_avg/parsec-dedup_run2.log
+   real_time = 0.000s
+job.batch "parsec-dedup" deleted
+-> Run #3
+job.batch/parsec-dedup created
+job.batch/parsec-dedup condition met
+   logs → results2a_baseline_3x_avg/parsec-dedup_run3.log
+   real_time = 0.000s
+job.batch "parsec-dedup" deleted
+0.000
+>>> parsec-dedup baseline avg = 0.000s
+
+=== Baseline 3× for parsec-ferret ===
+-> Run #1
+job.batch "parsec-ferret" deleted
+job.batch/parsec-ferret created
+job.batch/parsec-ferret condition met
+   logs → results2a_baseline_3x_avg/parsec-ferret_run1.log
+   real_time = 0.000s
+job.batch "parsec-ferret" deleted
+-> Run #2
+job.batch/parsec-ferret created
+job.batch/parsec-ferret condition met
+   logs → results2a_baseline_3x_avg/parsec-ferret_run2.log
+   real_time = 0.000s
+job.batch "parsec-ferret" deleted
+-> Run #3
+job.batch/parsec-ferret created
+job.batch/parsec-ferret condition met
+   logs → results2a_baseline_3x_avg/parsec-ferret_run3.log
+   real_time = 0.000s
+job.batch "parsec-ferret" deleted
+0.000
+>>> parsec-ferret baseline avg = 0.000s
+
+=== Baseline 3× for parsec-freqmine ===
+-> Run #1
+job.batch/parsec-freqmine created
+job.batch/parsec-freqmine condition met
+   logs → results2a_baseline_3x_avg/parsec-freqmine_run1.log
+   real_time = 0.000s
+job.batch "parsec-freqmine" deleted
+-> Run #2
+job.batch/parsec-freqmine created
+job.batch/parsec-freqmine condition met
+   logs → results2a_baseline_3x_avg/parsec-freqmine_run2.log
+   real_time = 0.000s
+job.batch "parsec-freqmine" deleted
+-> Run #3
+job.batch/parsec-freqmine created
+job.batch/parsec-freqmine condition met
+   logs → results2a_baseline_3x_avg/parsec-freqmine_run3.log
+   real_time = 0.000s
+job.batch "parsec-freqmine" deleted
+0.000
+>>> parsec-freqmine baseline avg = 0.000s
+
+=== Baseline 3× for parsec-radix ===
+-> Run #1
+job.batch/parsec-radix created
+job.batch/parsec-radix condition met
+   logs → results2a_baseline_3x_avg/parsec-radix_run1.log
+   real_time = 0.000s
+job.batch "parsec-radix" deleted
+-> Run #2
+job.batch/parsec-radix created
+job.batch/parsec-radix condition met
+   logs → results2a_baseline_3x_avg/parsec-radix_run2.log
+   real_time = 0.000s
+job.batch "parsec-radix" deleted
+-> Run #3
+job.batch/parsec-radix created
+job.batch/parsec-radix condition met
+   logs → results2a_baseline_3x_avg/parsec-radix_run3.log
+   real_time = 0.000s
+job.batch "parsec-radix" deleted
+0.000
+>>> parsec-radix baseline avg = 0.000s
+
+=== Baseline 3× for parsec-vips ===
+-> Run #1
+job.batch/parsec-vips created
+job.batch/parsec-vips condition met
+   logs → results2a_baseline_3x_avg/parsec-vips_run1.log
+   real_time = 0.000s
+job.batch "parsec-vips" deleted
+-> Run #2
+job.batch/parsec-vips created
+job.batch/parsec-vips condition met
+   logs → results2a_baseline_3x_avg/parsec-vips_run2.log
+   real_time = 0.000s
+job.batch "parsec-vips" deleted
+-> Run #3
+job.batch/parsec-vips created
+job.batch/parsec-vips condition met
+   logs → results2a_baseline_3x_avg/parsec-vips_run3.log
+   real_time = 0.000s
+job.batch "parsec-vips" deleted
+0.000
+>>> parsec-vips baseline avg = 0.000s
+
+✅ All baseline runs done, with logs and averages in results2a_baseline_3x_avg/*.txt

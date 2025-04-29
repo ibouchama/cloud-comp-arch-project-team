@@ -1,0 +1,28 @@
+Pick the "real" values.
+
+the normalized executed time computation is:
+normalized executed time := CPU_interference_3times_avg / baseline_3times_avg 
+
+
+For CPU interference:
+
+parsec-blackscholes
+0.716 / ((0.578 + 0.584 + 0.581)/3) = 1.23
+
+parsec-canneal
+8.242 / ((7.708 + 7.970 + 7.798)/3) = 1.05
+
+parsec-dedup
+25.256 / ((17.383 + 17.194 + 17.305)/3) = 1.46
+
+parsec-ferret
+7.533 / ((4.115 + 4.217 + 4.220)/3) = 1.80
+
+parsec-freqmine
+8.619 / ((4.561 + 4.286 + 4.351)/3) = 1.96
+
+parsec-radix
+43.405 / ((41.917 + 42.038 + 41.886)/3) = 1.03
+
+parsec-vips
+107.307 / ((68.905 + 69.163 + 69.187)/3) = 1.55

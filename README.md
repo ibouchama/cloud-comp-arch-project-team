@@ -2,7 +2,35 @@ To set-up the environment, create a new bucket and a new cluster within, run the
 
 - source env_setup.sh
 - bash create_bucket.sh
+- gcloud auth login
+- gcloud auth application-default login
 - bash create_cluster.sh
+
+If you see the following retry on the terminal:
+```
+W0429 17:21:27.764283    9716 validate_cluster.go:182] (will retry): unexpected error during validation: error listing nodes: Get "https://34.79.80.180/api/v1/nodes": dial tcp 34.79.80.180:443: connect: connection refused
+```
+Then it's normal. Those retries aren’t a new error so much as the script `create_cluster.sh` polling the API server before it’s up. On GCE it can easily take 5–10 minutes from the time you run `kops update cluster … --yes` until:
+1. The master VM is fully booted
+2. kube-apiserver comes up
+3. The GCE load-balancer / forwarding rule becomes healthy
+4. The TLS certs are in place
+
+Only then will
+```
+kops validate cluster --name part2a.k8s.local --wait 10m
+```
+actually see your node(s) and return success. Until that point you’ll continue to see connect: connection refused or timeouts.
+
+During the time of waiting these retries, we can watch it manually. In another terminal, run:
+```
+kubectl get nodes --context part2a.k8s.local --watch
+```
+Once you see your master (and parsec-server node) transition to `Ready`, our `validate` will succeed immediately.
+
+After the API server is healthy, kops validate will stop retrying and report your cluster as ready.
+
+\
   If you encounter an error when running the above, try the following set of commands:
 - - gcloud auth login
 - - gcloud auth application-default login
@@ -115,3 +143,35 @@ membw
 kubectl create -f interference/ibench-membw.yaml
 ./mcperf -s 100.96.2.2 -a 10.0.16.5 --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 -w 2 --scan 5000:80000:5000 > membw_run1.csv
 kubectl delete pod ibench-membw
+
+
+\
+IMPORTANT: you must delete your cluster when you are not using it! Otherwise, you will easily use up all of your cloud credits! When you are ready to work on the project, you can easily re-launch the cluster with the instructions above. To delete your cluster, use the command:
+```
+kops delete cluster part2a.k8s.local --yes
+```
+
+# Part2
+Do the same thing as above until (included)
+```
+kubectl get nodes -o wide
+```
+You should see 2 nodes: 1 master and 1 node
+
+Then connect to the `parsec-server` VM using gcloud:
+```
+gcloud compute ssh --ssh-key-file ~/.ssh/cloud-computing ubuntu@parsec-server-xxxx --zone europe-west1-b
+```
+
+And now, you're in the `parsec-server` VM!
+
+In another terminal of your laptop (in the same directory where you did your `git clone` of the repo and sourced `env_setup.sh`), make sure that the jobs can be scheduled successfully, run the following command in order to
+assign the appropriate label to the parsec node
+`kubectl label nodes parsec-server-xxxx cca-project-nodetype=parsec`
+
+Then
+```
+kubectl create -f interference/ibench-cpu.yaml # Wait for interference to start
+kubectl create -f parsec-benchmarks/part2a/parsec-dedup.yaml
+```
+
