@@ -149,7 +149,7 @@ kubectl delete pod ibench-membw
 \
 IMPORTANT: you must delete your cluster when you are not using it! Otherwise, you will easily use up all of your cloud credits! When you are ready to work on the project, you can easily re-launch the cluster with the instructions above. To delete your cluster, use the command:
 ```
-kops delete cluster part2a.k8s.local --yes
+kops delete cluster part1.k8s.local --yes
 ```
 
 # Part2a
