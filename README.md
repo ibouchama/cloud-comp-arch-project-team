@@ -43,6 +43,10 @@ Your cluster should now be created. Verify with the following command and get th
 - kubectl get nodes -o wide
   You should see 4 nodes: 1 master and 3 nodes
 
+\
+Please go to section Part2a if you're doing Part2a. Otherwise, continue.
+
+\
 To launch memcached, run this:
 
 - bash launch_memcached.sh
@@ -166,19 +170,28 @@ gcloud compute ssh --ssh-key-file ~/.ssh/cloud-computing ubuntu@parsec-server-xx
 
 And now, you're in the `parsec-server` VM!
 
+\
+Please change the nodetype from `memcached` to `parsec` for each interference type in `interference/` directory, i.e.
+```
+  nodeSelector:
+    cca-project-nodetype: "parsec"
+    # cca-project-nodetype: "memcached"
+```
+
+\
 In another terminal of your laptop (in the same directory where you did your `git clone` of the repo and sourced `env_setup.sh`), make sure that the jobs can be scheduled successfully, run the following command in order to
 assign the appropriate label to the parsec node `kubectl label nodes parsec-server-xxxx cca-project-nodetype=parsec`
 
-If encountering `node/parsec-server-vkg8 not labeled` as output,
+If encountering `node/parsec-server-xxxx not labeled` as output,
 Then
 1. `kubectl config current-context`
 2. `kubectl get nodes`
-3. `kubectl label node parsec-server-vkg8 cca-project-nodetype=parsec`
-4. `kubectl get node parsec-server-vkg8 --show-labels`
+3. `kubectl label node parsec-server-xxxx cca-project-nodetype=parsec`
+4. `kubectl get node parsec-server-xxxx --show-labels`
 If you get the output
 ```
 NAME                 STATUS   ROLES   AGE   VERSION   LABELS
-parsec-server-vkg8   Ready    node    39m   v1.31.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=n2-standard-2,beta.kubernetes.io/os=linux,cca-project-nodetype=parsec,cloud.google.com/metadata-proxy-ready=true,failure-domain.beta.kubernetes.io/region=europe-west1,failure-domain.beta.kubernetes.io/zone=europe-west1-b,kops.k8s.io/instancegroup=nodes-europe-west1-b,kubernetes.io/arch=amd64,kubernetes.io/hostname=parsec-server-vkg8,kubernetes.io/os=linux,node-role.kubernetes.io/node=,node.kubernetes.io/instance-type=n2-standard-2,topology.gke.io/zone=europe-west1-b,topology.kubernetes.io/region=europe-west1,topology.kubernetes.io/zone=europe-west1-b
+parsec-server-xxxx   Ready    node    39m   v1.31.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=n2-standard-2,beta.kubernetes.io/os=linux,cca-project-nodetype=parsec,cloud.google.com/metadata-proxy-ready=true,failure-domain.beta.kubernetes.io/region=europe-west1,failure-domain.beta.kubernetes.io/zone=europe-west1-b,kops.k8s.io/instancegroup=nodes-europe-west1-b,kubernetes.io/arch=amd64,kubernetes.io/hostname=parsec-server-xxxx,kubernetes.io/os=linux,node-role.kubernetes.io/node=,node.kubernetes.io/instance-type=n2-standard-2,topology.gke.io/zone=europe-west1-b,topology.kubernetes.io/region=europe-west1,topology.kubernetes.io/zone=europe-west1-b
 ```
 
 Then it simply means: all that “not labeled” noise is just kubectl telling you “no change” — the label was already there (kops applied it for you from your `nodeLabels`: stanza). 
@@ -192,12 +205,12 @@ kubectl create -f parsec-benchmarks/part2a/parsec-dedup.yaml
 ```
 
 \
-Then execute the CPU interference script to compute the CPU_interference_3times_avg
+Then execute each interference type (cpu l1d l1i l2 llc membw) and for each PARSEC Part2a's script in order to compute the interference_type_3times_avg
 ```
-chmod +x run_part2a_interference_3x_avg.sh
-./run_part2a_interference_3x_avg.sh
+chmod +x run_part2a_all_interference_3x_avg.sh
+./run_part2a_all_interference_3x_avg.sh
 ```
-The averages are in `results2a_interference_3x_avg` folder.
+The averages are in `results2a_interferences_3x` folder.
 
 \
 Then execute the baseline script to compute the baseline_3times_avg
@@ -214,3 +227,25 @@ Last but not least, DELETE THE CLUSTER!!!!!!
 ```
 kops delete cluster part2a.k8s.local --yes
 ```
+
+## Note:
+difference between
+```
+pod=$(kubectl get pods -l job-name="$job_name" -o jsonpath='{.items[0].metadata.name}')
+```
+and
+```
+pod=$(kubectl get pods --selector=job-name="$job_name" --output=jsonpath='{.items[*].metadata.name}')
+```
+
+1. Selector syntax:
+`-l job-name="$job_name"` is just shorthand for `--selector=job-name="$job_name"`, so no difference.
+2. JSONPath expression:\
+A Pod here is the things that we delete every time before and after each iteration.\
+- `'{.items[0].metadata.name}'` picks only the first Pod in the returned list.\
+- `'{.items[*].metadata.name}'` walks every item and spits out all Pod names (space-separated).\
+If your Job only ever spins up one Pod, you’ll see the same thing either way. But if there are ever multiple matching Pods (e.g. you forgot to delete an old one, or parallelism >1), then:\
+- `[0]` → you get a single name (the first).\
+- `[*]` → you get all of them.\
+So pick `[0]` if you’re certain there’s just one Pod you care about, or `[*]` if you really want a list of all of them.
+

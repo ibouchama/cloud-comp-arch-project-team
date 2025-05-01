@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Set your group number and ETH ID here
-GROUP_NUM="94"    # e.g., 001
-ETH_ID="ibouchama"  # e.g., rbonouag
+GROUP_NUM="94"
+ETH_ID="whsieh"
+# "ibouchama"
 
 # Set KOPS state store
 export KOPS_STATE_STORE="gs://cca-eth-2025-group-${GROUP_NUM}-${ETH_ID}/"
