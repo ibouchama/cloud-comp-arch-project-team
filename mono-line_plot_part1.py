@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Baseline run CSV files
-baseline_csv_files_runs = ['results/baseline_run1.csv', 'results/baseline_run2.csv', 'results/baseline_run3.csv']
 baseline2_csv_files_runs = ['results/baseline2_run1.csv', 'results/baseline2_run2.csv', 'results/baseline2_run3.csv']
 # CPU run CSV files
 cpu_csv_files_runs = ['results/cpu_run1.csv', 'results/cpu_run2.csv', 'results/cpu_run3.csv']
@@ -20,7 +19,6 @@ llc_csv_files_runs = ['results/llc_run1.csv', 'results/llc_run2.csv', 'results/l
 membw_csv_files_runs = ['results/membw_run1.csv', 'results/membw_run2.csv', 'results/membw_run3.csv']
 
 # pick one of these to plot:
-# runs_to_plot = baseline_csv_files_runs
 # runs_to_plot = baseline2_csv_files_runs
 # runs_to_plot = cpu_csv_files_runs
 # runs_to_plot = l1d_csv_files_runs
@@ -29,7 +27,6 @@ membw_csv_files_runs = ['results/membw_run1.csv', 'results/membw_run2.csv', 'res
 # runs_to_plot = llc_csv_files_runs
 runs_to_plot = membw_csv_files_runs
 
-# label        = 'Baseline (3 runs)'
 # label        = 'Baseline2 (3 runs)'
 # label        = 'CPU (3 runs)'
 # label        = 'L1d (3 runs)'
@@ -98,7 +95,7 @@ ax.grid(True)
 ax.legend()
 plt.tight_layout()
 
-# plt.savefig("results_plot/baseline_latency_vs_qps.png") #experiment1
+# plt.savefig("results_plot/baseline2_latency_vs_qps.png") #experiment1
 # plt.savefig("results_plot/cpu_latency_vs_qps.png") #experiment2
 # plt.savefig("results_plot/l1d_latency_vs_qps.png") #experiment3
 out_png = f"results_plot/{label.lower().replace(' ', '_')}_latency_vs_qps.png"
