@@ -18,13 +18,12 @@ set -euo pipefail
 # ===============================================================================
 
 LOG_ROOT="results2b_baseline_3x_avg"
-mkdir -p "$LOG_ROOT"
 JOB_DIR="parsec-benchmarks/part2b"
 THREAD_COUNTS=(1 2 4 8)
+threads=8
 
 echo "Using kubectl context: $(kubectl config current-context)"
 
-for threads in "${THREAD_COUNTS[@]}"; do
   LOG_DIR="$LOG_ROOT/${threads}threads"
   mkdir -p "$LOG_DIR"
   echo
@@ -72,7 +71,6 @@ for threads in "${THREAD_COUNTS[@]}"; do
     echo "$avg" | tee "$summary"
     echo ">>> ${job_name} (threads=${threads}) avg = ${avg}s"
   done
-done
 
 echo
  echo "✅ All Part2b baseline runs done; logs and averages in $LOG_ROOT/*"

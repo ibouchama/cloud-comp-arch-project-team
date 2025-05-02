@@ -13,8 +13,8 @@ Num of Runs: 100
 Size of data: 400000000
 
 real	1m26.534s
-user	1m26.106s
-sys	0m0.423s
+user	1m26.102s
+sys	0m0.428s
 [PARSEC] [----------    End of output    ----------]
 [PARSEC]
 [PARSEC] BIBLIOGRAPHY
