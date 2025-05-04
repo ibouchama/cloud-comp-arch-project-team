@@ -40,8 +40,9 @@ After the API server is healthy, kops validate will stop retrying and report you
 
 Your cluster should now be created. Verify with the following command and get the names of the vms:
 
-- kubectl get nodes -o wide
-  You should see 4 nodes: 1 master and 3 nodes
+- `kubectl get nodes -o wide`
+  You should see 4 nodes: 1 master and 3 nodes\
+  8 nodes for 
 
 \
 Please go to section Part2a if you're doing Part2a. Otherwise, continue.
@@ -51,6 +52,10 @@ To launch memcached, run this:
 
 - bash launch_memcached.sh
 
+\
+Please go to section Part3 if you're doing Part3. Otherwise, continue.
+
+\
 Now ssh into the VM and build mcperf:
 
 Replace the NODE_NAME (names of the vms) with the name of the node you would like to ssh into.
@@ -249,3 +254,21 @@ If your Job only ever spins up one Pod, you’ll see the same thing either way. 
 - `[*]` → you get all of them.\
 So pick `[0]` if you’re certain there’s just one Pod you care about, or `[*]` if you really want a list of all of them.
 
+
+# Part3
+In `schedule_part3.sh`,
+Replace the node name and the agents name.
+
+Run the scheduling policy bash script:
+```
+chmod +x schedule_part3.sh
+./schedule_part3.sh
+```
+
+\
+Finally, the computation result is in `result2a_my_computation_for_avg.txt` .
+
+Last but not least, DELETE THE CLUSTER!!!!!!
+```
+kops delete cluster part3.k8s.local --yes
+```
