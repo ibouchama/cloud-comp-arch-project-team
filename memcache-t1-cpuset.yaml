@@ -12,6 +12,59 @@ spec:
       command: ["/bin/sh"]
       args: ["-c", "taskset -c 0 ./memcached -t 1 -u memcache"]
   nodeSelector:
-    cca-project-nodetype: "memcached"
+    # cca-project-nodetype: "memcached"
+    kubernetes.io/hostname: node-b-2core-8z5q
+  affinity:
+    ## (hard) only co‐locate with Blackscholes & Radix
+    # softly prefer co-locating with Blackscholes/Radix
+    podAffinity:
+      # requiredDuringSchedulingIgnoredDuringExecution:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: name
+              operator: In
+              values:
+              - parsec-blackscholes
+              - parsec-radix
+          topologyKey: kubernetes.io/hostname
+
+      # Soft: if neither Blackscholes nor Radix is present, prefer Canneal
+      # preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 50
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: name
+              operator: In
+              values:
+              - parsec-canneal
+          topologyKey: kubernetes.io/hostname
+
+    # (hard) never colocate with Ferret; (soft) avoid Dedup, Freqmine, VIPS
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: name
+            operator: In
+            values:
+            - parsec-ferret
+        topologyKey: kubernetes.io/hostname
+
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 50
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: name
+              operator: In
+              values:
+              - parsec-dedup
+              - parsec-freqmine
+              - parsec-vips
+          topologyKey: kubernetes.io/hostname
 
 

@@ -15,14 +15,50 @@ spec:
         args: ["-c", "./run -a run -S parsec -p vips -i native -n 4"]
       restartPolicy: Never
       # nodeSelector:
-      #   cca-project-nodetype: "parsec"
+        # cca-project-nodetype: "parsec"
+        # kubernetes.io/hostname: node-d-4core-6p8t
       affinity:
         nodeAffinity:
+          # Soft preference for node-d
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - node-d-4core-7kj9
+
+          # Hard requirement that it must be on c or d
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: node-type
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - node-c-4core
-                - node-d-4core
+                - node-c-4core-jk53
+                - node-d-4core-7kj9
+
+        # never with Ferret (hard), avoid Canneal, Dedup, Freqmine (soft)
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: name
+                operator: In
+                values:
+                - parsec-ferret
+            topologyKey: kubernetes.io/hostname
+
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: name
+                  operator: In
+                  values:
+                  - parsec-canneal
+                  - parsec-dedup
+                  - parsec-freqmine
+              topologyKey: kubernetes.io/hostname

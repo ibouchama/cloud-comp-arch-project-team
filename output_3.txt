@@ -1,0 +1,66 @@
+printed stuff of run_experiment_3.sh:
+
+> chmod +x run_experiment_3.sh 
+> ./run_experiment_3.sh 
+⏳ Waiting for memcached pod to be Ready…
+pod/some-memcached condition met
+✅ Memcached cluster IP: 100.71.126.195
+Starting mcperf load on client-agent-a-qx8q (2 threads)…
+Starting mcperf load on client-agent-b-80sd (4 threads)…
+Warming up on client-measure-6336 (loadonly)…
+→ Memcached is now under a steady ~30K QPS load with p95 measurements every 10 s.
+Submitting batch jobs in parsec-benchmarks/part3…
+job.batch/parsec-blackscholes created
+job.batch/parsec-canneal created
+job.batch/parsec-dedup created
+job.batch/parsec-ferret created
+job.batch/parsec-freqmine created
+job.batch/parsec-radix created
+job.batch/parsec-vips created
+→ Batch jobs submitted.
+⏳ Waiting for all Jobs to complete (up to 1h)…
+job.batch/parsec-blackscholes condition met
+job.batch/parsec-canneal condition met
+job.batch/parsec-dedup condition met
+job.batch/parsec-ferret condition met
+job.batch/parsec-freqmine condition met
+job.batch/parsec-radix condition met
+job.batch/parsec-vips condition met
+→ All batch Jobs completed.
+📥 Fetching mcperf-measure.log from client-measure-6336…
+mcperf-measure.log                                                                                                                        100%  100     2.9KB/s   00:00    
+🔍 Checking p95 latency SLO (< 1 ms)…
+✅ SLO met: all recorded 95th percentiles < 1 ms
+Collecting timestamps and computing runtimes:
+Job:  parsec-blackscholes
+Job time:  0:02:38
+Job:  parsec-canneal
+Job time:  0:03:58
+Job:  parsec-dedup
+Job time:  0:00:18
+Job:  parsec-ferret
+Job time:  0:05:47
+Job:  parsec-freqmine
+Job time:  0:03:04
+Job:  parsec-radix
+Job time:  0:07:38
+Job:  parsec-vips
+Job time:  0:00:41
+Job:  memcached
+Total time: 0:07:40
+✅ Experiment finished.
+
+
+
+
+printed stuff on the other terminal:
+> kubectl get pods
+NAME                        READY   STATUS      RESTARTS   AGE
+parsec-blackscholes-8vpg8   0/1     Completed   0          25m
+parsec-canneal-g2278        0/1     Completed   0          25m
+parsec-dedup-5dgrp          0/1     Completed   0          25m
+parsec-ferret-q2dzw         0/1     Completed   0          25m
+parsec-freqmine-7wz4j       0/1     Completed   0          25m
+parsec-radix-cqzs2          0/1     Completed   0          25m
+parsec-vips-7d5g6           0/1     Completed   0          25m
+some-memcached              1/1     Running     0          71m

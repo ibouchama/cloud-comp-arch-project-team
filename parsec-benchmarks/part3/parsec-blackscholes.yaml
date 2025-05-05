@@ -14,5 +14,15 @@ spec:
         command: ["/bin/sh"]
         args: ["-c", "./run -a run -S parsec -p blackscholes -i native -n 4"]
       restartPolicy: Never
-      nodeSelector:
-        cca-project-nodetype: "parsec"
+      # nodeSelector:
+      #   cca-project-nodetype: "parsec"
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: name
+                operator: In
+                values:
+                - some-memcached
+            topologyKey: kubernetes.io/hostname

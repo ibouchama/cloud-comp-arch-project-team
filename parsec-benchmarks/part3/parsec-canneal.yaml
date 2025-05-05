@@ -15,4 +15,41 @@ spec:
         args: ["-c", "./run -a run -S parsec -p canneal -i native -n 4"]
       restartPolicy: Never
       nodeSelector:
-        cca-project-nodetype: "parsec"
+        # cca-project-nodetype: "parsec"
+        kubernetes.io/hostname: node-b-2core-8z5q
+      affinity:
+        # (hard) only co‐locate with Blackscholes & Radix
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: name
+                operator: In
+                values:
+                - some-memcached
+            topologyKey: kubernetes.io/hostname
+
+        # (hard) never with Ferret; (soft) avoid Dedup, Freqmine, VIPS
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: name
+                operator: In
+                values:
+                - parsec-ferret
+            topologyKey: kubernetes.io/hostname
+
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: name
+                  operator: In
+                  values:
+                  - parsec-dedup
+                  - parsec-freqmine
+                  - parsec-vips
+              topologyKey: kubernetes.io/hostname
+

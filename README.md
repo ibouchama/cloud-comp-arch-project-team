@@ -256,14 +256,108 @@ So pick `[0]` if you’re certain there’s just one Pod you care about, or `[*]
 
 
 # Part3
-In `schedule_part3.sh`,
+Goal of part3: **Co-schedule** the latency-critical memcached application from Part 1 and all seven batch applications from Part 2 in a heterogeneous cluster, consisting of VMs with a different number of
+cores.
+
+\
+To install the augmented version of mcperf on `client-agent-*` and `client-measure`, do
+```
+bash install_mcperf_3.sh
+```
+
+Based on `kubectl get nodes -o wide`,
+- in each yaml file, change the node name.
+- in run_experiment_3.sh, change the agents and the client name.
+
+\
+Every time we change things in `memcache-t1-cpuset.yaml`, we need to do:
+```
+kubectl delete pod some-memcached         # tear down the old one
+kubectl apply  -f memcache-t1-cpuset.yaml # bring up the new spec
+```
+if unable, then we can do a “replace” which under the hood deletes and recreates for us:
+```
+kubectl replace --force -f memcache-t1-cpuset.yaml
+```
+
+After doing all these, do:
+In `run_experiment_3.sh`,
 Replace the node name and the agents name.
 
 Run the scheduling policy bash script:
 ```
-chmod +x schedule_part3.sh
-./schedule_part3.sh
+chmod +x run_experiment_3.sh
+./run_experiment_3.sh
 ```
+
+\
+In another terminal, we can
+
+- Verify which pods are still active:
+```
+kubectl get pods
+```
+Running →  the container is running.\
+Completed → the container ran to completion (exit code 0).\
+Error → the container exited non-zero before finishing.\
+OOMKilled → the kubelet forcibly killed the container because it exceeded the node’s available memory.
+
+Eg:
+```
+kubectl get pods
+NAME                        READY   STATUS      RESTARTS   AGE
+parsec-blackscholes-8vpg8   0/1     Completed   0          25m
+parsec-canneal-g2278        0/1     Completed   0          25m
+parsec-dedup-5dgrp          0/1     Completed   0          25m
+parsec-ferret-q2dzw         0/1     Completed   0          25m
+parsec-freqmine-7wz4j       0/1     Completed   0          25m
+parsec-radix-cqzs2          0/1     Completed   0          25m
+parsec-vips-7d5g6           0/1     Completed   0          25m
+some-memcached              1/1     Running     0          71m
+```
+
+- Debug stuck pods:
+If you think they’ve hung or failed to schedule, pick one of the pod names and run:
+```
+kubectl describe pod <that-pod-name>
+kubectl logs <that-pod-name>
+```
+in order to see events, resource-insufficiency messages, or crash logs.
+
+\
+Remember, before each `./run_experiment_3.sh`, on another terminal, always do
+```
+kubectl delete jobs --all
+```
+if unable to delete a job, then force to delete
+```
+kubectl delete pod <that-pod-name> --grace-period=0 --force
+```
+Eg:
+```
+kubectl delete pod parsec-canneal-vnxdr --grace-period=0 --force
+```
+
+And check again if all jobs are deleted:
+```
+kubectl get pods
+```
+
+\
+The output is stored in `results.json` .
+
+Please refer to `output_3.txt` to see the printed stuff of run_experiment_3.sh and things on the other terminal
+
+
+## In the yaml files:
+
+I've modified `memcache-t1-cpuset.yaml` and created 7 yaml files under `parsec-benchmarks/part3/`.
+
+| Label key                       | Exists by default? | How to use                     |
+| ------------------------------- | ------------------ | ------------------------------ |
+| `kubernetes.io/hostname`        | ✅ yes              | No setup. Select on node name. |
+| `cca-project-nodetype` (custom) | ❌ no               | First `kubectl label node …`   |
+
 
 \
 Finally, the computation result is in `result2a_my_computation_for_avg.txt` .
@@ -272,3 +366,4 @@ Last but not least, DELETE THE CLUSTER!!!!!!
 ```
 kops delete cluster part3.k8s.local --yes
 ```
+
