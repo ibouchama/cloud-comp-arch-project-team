@@ -311,7 +311,35 @@ Replace the node name and the agents name.
 Run the scheduling policy bash script:
 ```
 chmod +x run_experiment_3.sh
-./run_experiment_3.sh
+kubectl delete jobs --all
+kubectl get pods -o wide
+kubectl delete pod some-memcached
+kubectl get pods -o wide
+kubectl apply -f memcache-t1-cpuset.yaml
+kubectl get pods -o wide
+./run_experiment_3.sh 1
+```
+
+After one run of run_experiment_3.sh, do
+```
+kubectl delete jobs --all
+kubectl get pods -o wide
+kubectl delete pod some-memcached
+kubectl get pods -o wide
+kubectl apply -f memcache-t1-cpuset.yaml
+kubectl get pods -o wide
+./run_experiment_3.sh 2
+```
+
+Then the last run:
+```
+kubectl delete jobs --all
+kubectl get pods -o wide
+kubectl delete pod some-memcached
+kubectl get pods -o wide
+kubectl apply -f memcache-t1-cpuset.yaml
+kubectl get pods -o wide
+./run_experiment_3.sh 3
 ```
 
 \
@@ -319,7 +347,7 @@ In another terminal, we can
 
 - Verify which pods are still active:
 ```
-kubectl get pods
+kubectl get pods -o wide
 ```
 Running →  the container is running.\
 Completed → the container ran to completion (exit code 0).\
@@ -328,16 +356,17 @@ OOMKilled → the kubelet forcibly killed the container because it exceeded the 
 
 Eg:
 ```
-kubectl get pods
-NAME                        READY   STATUS      RESTARTS   AGE
-parsec-blackscholes-8vpg8   0/1     Completed   0          25m
-parsec-canneal-g2278        0/1     Completed   0          25m
-parsec-dedup-5dgrp          0/1     Completed   0          25m
-parsec-ferret-q2dzw         0/1     Completed   0          25m
-parsec-freqmine-7wz4j       0/1     Completed   0          25m
-parsec-radix-cqzs2          0/1     Completed   0          25m
-parsec-vips-7d5g6           0/1     Completed   0          25m
-some-memcached              1/1     Running     0          71m
+> kubectl get pods -o wide
+NAME                        READY   STATUS      RESTARTS   AGE     IP            NODE                NOMINATED NODE   READINESS GATES
+parsec-blackscholes-w5zz5   0/1     Completed   0          3m23s   100.96.1.28   node-c-4core-hs9x   <none>           <none>
+parsec-canneal-bc7qr        0/1     Completed   0          3m23s   100.96.7.10   node-a-2core-81w9   <none>           <none>
+parsec-dedup-575dz          0/1     Completed   0          3m23s   100.96.2.31   node-b-2core-g1wk   <none>           <none>
+parsec-ferret-x89h4         0/1     Completed   0          3m23s   100.96.1.29   node-c-4core-hs9x   <none>           <none>
+parsec-freqmine-fftdf       0/1     Completed   0          3m23s   100.96.3.16   node-d-4core-cr77   <none>           <none>
+parsec-radix-rlpzt          0/1     Completed   0          3m22s   100.96.3.17   node-d-4core-cr77   <none>           <none>
+parsec-vips-v8zfd           0/1     Completed   0          3m22s   100.96.1.30   node-c-4core-hs9x   <none>           <none>
+some-memcached              1/1     Running     0          3m41s   100.96.2.30   node-b-2core-g1wk   <none>           <none>
+
 ```
 
 - Debug stuck pods:
@@ -387,7 +416,7 @@ kubectl delete pod parsec-canneal-vnxdr --grace-period=0 --force
 
 And check again if all jobs are deleted:
 ```
-kubectl get pods
+kubectl get pods -o wide
 ```
 
 \
