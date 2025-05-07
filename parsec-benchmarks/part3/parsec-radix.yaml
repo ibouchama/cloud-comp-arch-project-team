@@ -5,46 +5,14 @@ metadata:
   labels:
     name: parsec-radix
 spec:
-  backoffLimit: 0            # no retries
   template:
     spec:
-      affinity:
-        nodeAffinity:
-          # Soft: prefer node-d first
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - node-d-4core-7kj9
-
-          # Hard: only node-d or node-c
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - node-d-4core-7kj9
-                - node-c-4core-jk53
-
       containers:
-      - name: parsec-radix
-        image: anakli/cca:splash2x_radix
+      - image: anakli/cca:splash2x_radix
+        name: parsec-radix
         imagePullPolicy: Always
         command: ["/bin/sh"]
-        args:
-        - "-c"
-        - "./run -a run -S splash2x -p radix -i native -n 4"
-        resources:
-          requests:
-            cpu:    "100m"
-            memory: "12Gi"
-          # remove or raise limits so we don’t artificially cap RAM
-          limits:
-            cpu:    "100m"
-            memory: "12Gi"
-
+        args: ["-c", "./run -a run -S splash2x -p radix -i native -n 4"]
       restartPolicy: Never
+      nodeSelector:
+        kubernetes.io/hostname: node-d-4core-cr77

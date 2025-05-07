@@ -12,54 +12,8 @@ spec:
         name: parsec-freqmine
         imagePullPolicy: Always
         command: ["/bin/sh"]
-        args: ["-c", "./run -a run -S parsec -p freqmine -i native -n 2"]
+        # args: ["-c", "./run -a run -S parsec -p freqmine -i native -n 2"]
+        args: ["-c", "./run -a run -S parsec -p freqmine -i native -n 4"]
       restartPolicy: Never
-      # nodeSelector:
-        # cca-project-nodetype: "parsec"
-        # kubernetes.io/hostname: node-c-4core-6p8t
-
-      affinity:
-        nodeAffinity:
-          # Soft preference for node-c
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - node-c-4core-jk53
-
-          # Hard requirement that it must be on c or d
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - node-c-4core-jk53
-                - node-d-4core-7kj9
-
-        # never with Ferret (hard), avoid Canneal, Dedup, Vips (soft)
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: name
-                operator: In
-                values:
-                - parsec-ferret
-            topologyKey: kubernetes.io/hostname
-
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 50
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: name
-                  operator: In
-                  values:
-                  - parsec-canneal
-                  - parsec-dedup
-                  - parsec-vips
-              topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        kubernetes.io/hostname: node-d-4core-cr77

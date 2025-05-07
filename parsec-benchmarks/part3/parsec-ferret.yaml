@@ -12,21 +12,8 @@ spec:
         name: parsec-ferret
         imagePullPolicy: Always
         command: ["/bin/sh"]
-        args: ["-c", "./run -a run -S parsec -p ferret -i native -n 2"]
+        args: ["-c", "./run -a run -S parsec -p ferret -i native -n 4"]
       restartPolicy: Never
       nodeSelector:
         # cca-project-nodetype: "parsec"
-        kubernetes.io/hostname: node-a-2core-fltk
-      affinity:
-        # (hard) never with Memcached, Canneal, Dedup
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: name
-                operator: In
-                values:
-                - some-memcached
-                - parsec-canneal
-                - parsec-dedup
-            topologyKey: kubernetes.io/hostname
+        kubernetes.io/hostname: node-c-4core-hs9x

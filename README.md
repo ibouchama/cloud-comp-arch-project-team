@@ -259,15 +259,39 @@ So pick `[0]` if you’re certain there’s just one Pod you care about, or `[*]
 Goal of part3: **Co-schedule** the latency-critical memcached application from Part 1 and all seven batch applications from Part 2 in a heterogeneous cluster, consisting of VMs with a different number of
 cores.
 
-\
-To install the augmented version of mcperf on `client-agent-*` and `client-measure`, do
+Based on `kubectl get nodes -o wide`,
+- in each yaml file: memcache-t1-cpuset.yaml and all 7 yaml files under parsec-benchmarks/part3/, change the node name.
+- in run_experiment_3.sh, change the agents and the client name.
+- in vm_setup.sh
+
 ```
-bash install_mcperf_3.sh
+bash vm_setup.sh
 ```
 
-Based on `kubectl get nodes -o wide`,
-- in each yaml file, change the node name.
-- in run_experiment_3.sh, change the agents and the client name.
+Then
+```
+# 1. Check cluster validation
+kubectl get nodes -o wide
+
+# 2. Deploy memcached
+kubectl delete pod some-memcached
+
+kubectl apply -f memcache-t1-cpuset.yaml
+
+# 3. Wait until memcached is Running
+kubectl get pods -o wide
+
+# 4. Expose the memcached pod as a LoadBalancer service
+kubectl expose pod some-memcached --name some-memcached-11211 --type LoadBalancer --port 11211
+
+# 5. Check that the service is exposed
+kubectl get svc
+
+# 6. Run your experiment script
+./run_experiment_3.sh 1
+```
+
+
 
 \
 Every time we change things in `memcache-t1-cpuset.yaml`, we need to do:
@@ -323,6 +347,29 @@ kubectl describe pod <that-pod-name>
 kubectl logs <that-pod-name>
 ```
 in order to see events, resource-insufficiency messages, or crash logs.
+
+
+In order to see in real time the available nodes that can be used:\
+Install the official metrics-server:
+```
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+Verify it's up:
+```
+kubectl -n kube-system rollout status deployment/metrics-server
+```
+
+Test kubectl top:
+```
+kubectl top nodes
+kubectl top pods --all-namespaces
+```
+
+Once metrics-server is running, you’ll get real-time CPU & memory usage, and then you can continue using:
+```
+watch -n5 kubectl top nodes
+```
 
 \
 Remember, before each `./run_experiment_3.sh`, on another terminal, always do

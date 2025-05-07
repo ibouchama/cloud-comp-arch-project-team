@@ -12,40 +12,8 @@ spec:
         name: parsec-dedup
         imagePullPolicy: Always
         command: ["/bin/sh"]
-        args: ["-c", "./run -a run -S parsec -p dedup -i native -n 4"]
+        args: ["-c", "./run -a run -S parsec -p dedup -i native -n 2"]
       restartPolicy: Never
-      # nodeSelector:
-        # cca-project-nodetype: "parsec"
-        # kubernetes.io/hostname: node-d-4core-6p8t
-      affinity:
-        nodeAffinity:
-          # Soft preference for node-d
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - node-d-4core-7kj9
-
-          # Hard requirement that it must be on c or d
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - node-c-4core-jk53
-                - node-d-4core-7kj9
-        # never co-locate with Memcached or Canneal
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: name
-                operator: In
-                values:
-                - some-memcached
-                - parsec-canneal
-            topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        kubernetes.io/hostname: node-b-2core-g1wk
+   
