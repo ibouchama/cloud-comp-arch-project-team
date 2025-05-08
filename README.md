@@ -118,32 +118,33 @@ kubectl delete pod ibench-membw
 
 ## PART 4: Dynamic Scheduling
 
-How to use and set-up controllerv2.py:
+How to use and set-up controllerv2.py:\
 
-Permissions:
-The user running this script must be in the docker group (sudo usermod -aG docker $USER, then log out/in).
-taskset usually requires sudo. You might need to run sudo python3 controller.py or configure sudoers for passwordless taskset for the specific user and command if running without full sudo.
-Memcached Setup (Part 4 instructions):
-Install memcached on the memcache-server-qmql VM.
-Configure /etc/memcached.conf:
--m 1024 (memory limit)
--l <internal_IP_of_memcache-server-qmql> (listen address)
-You can also add -t 1 or -t 2 for initial software threads, but taskset will control CPU core pinning. It's generally fine to let memcached manage its internal threads if pinned to specific cores.
-sudo systemctl restart memcached
-sudo systemctl status memcached to verify.
-Augmented mcperf Setup (Part 3 instructions):
-Install the augmented mcperf on client-agent-bf7q and client-measure-5v6m.
-SSH Keys (Recommended for seamless mcperf execution):
-Set up passwordless SSH from memcache-server-qmql (where controller runs) to client-measure-5v6m (where mcperf queries are initiated).
-Alternative/Simpler mcperf Handling (as implemented in the script):
-On the client-measure-5v6m VM, manually run the mcperf command.
-Redirect its standard output to a file that is accessible by the memcache-server-qmql VM. This could be an NFS share, or you could periodically scp the output.
-The script is currently set up to tail -F a local file MCPERF_OUTPUT_FILE. So, you need to get mcperf's output into this file on the controller's VM.
+Permissions:\
+The user running this script must be in the docker group (sudo usermod -aG docker $USER, then log out/in).\
+taskset usually requires sudo. You might need to run sudo python3 controller.py or configure sudoers for passwordless taskset for the specific user and command if running without full sudo.\
+Memcached Setup (Part 4 instructions):\
+Install memcached on the memcache-server-qmql VM.\
+Configure /etc/memcached.conf:\
+`-m 1024 (memory limit)`
+`-l <internal_IP_of_memcache-server-qmql>` (listen address)\
+You can also add -t 1 or -t 2 for initial software threads, but taskset will control CPU core pinning. It's generally fine to let memcached manage its internal threads if pinned to specific cores.\
+`sudo systemctl restart memcached`\
+`sudo systemctl status memcached to verify.`
+Augmented mcperf Setup (Part 3 instructions):\
+Install the augmented mcperf on client-agent-bf7q and client-measure-5v6m.\
+SSH Keys (Recommended for seamless mcperf execution):\
+Set up passwordless SSH from memcache-server-qmql (where controller runs) to client-measure-5v6m (where mcperf queries are initiated).\
+Alternative/Simpler mcperf Handling (as implemented in the script):\
+On the client-measure-5v6m VM, manually run the mcperf command.\
+Redirect its standard output to a file that is accessible by the memcache-server-qmql VM. This could be an NFS share, or you could periodically scp the output.\
+The script is currently set up to tail -F a local file MCPERF_OUTPUT_FILE. So, you need to get mcperf's output into this file on the controller's VM.\
 Example on client-measure VM:
 
+```
 # Assuming memcache-perf-dynamic is in home directory
-
 cd ~/memcache-perf-dynamic
+
 
 # Replace <CONTROLLER_VM_IP> and <PATH_ON_CONTROLLER_VM>
 
@@ -153,23 +154,25 @@ cd ~/memcache-perf-dynamic
  --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 300 \
  --qps_interval 2 --qps_min 5000 --qps_max 180000 \
  | ssh <USER>@<CONTROLLER_VM_IP> "cat > /home/<USER>/MCPERF_OUTPUT_FILE_NAME_AS_IN_SCRIPT"
-Use code with caution.
-Bash
-Or, if NFS is set up: ... > /mnt/shared_nfs/mcperf_output_for_controller.txt
-Batch Job Docker Images: Ensure the specified Docker images are accessible (e.g., public on Docker Hub or pre-pulled).
-Configuration: Update IP addresses and paths at the top of controller.py.
-Run the Controller:
-Copy controller.py to the memcache-server-qmql VM.
-python3 controller.py (or sudo python3 controller.py if needed for taskset).
-Output:
-controller_execution_log.txt (or your configured name) will contain the job log.
-MCPERF_OUTPUT_FILE (e.g., mcperf_controller_run.txt) should contain the raw mcperf output.
-Important Considerations & Potential Improvements:
+```
 
-mcperf Output Handling: The current readline() on tail -F's stdout might block if mcperf output is sparse. A more robust solution would use select.select or asyncio for non-blocking I/O on the mcperf_process.stdout file descriptor. For the project's scope, if mcperf updates every 2s (due to qps_interval), this might be acceptable.
-CPU Utilization for Memcached Scaling: The script currently scales memcached primarily on SLO. CPU utilization of memcached itself could be a secondary factor (e.g., don't scale down if its own CPU util is high even if SLO is met).
-Batch Job Resource Adjustment: The script assigns all available non-memcached cores to a single batch job at launch. It does not dynamically docker update a running batch job's cpuset-cpus. If memcached needs more cores, the current logic doesn't preempt/shrink the running batch job. A more advanced controller might pause the batch job, reconfigure memcached, then resume the batch job on fewer cores or wait.
-Robustness: Add more comprehensive error checking and recovery.
+Use code with caution.\
+Bash\
+Or, if NFS is set up: `... > /mnt/shared_nfs/mcperf_output_for_controller.txt`
+Batch Job Docker Images: Ensure the specified Docker images are accessible (e.g., public on Docker Hub or pre-pulled).\
+Configuration: Update IP addresses and paths at the top of controller.py.\
+Run the Controller:\
+Copy controller.py to the memcache-server-qmql VM.\
+python3 controller.py (or sudo python3 controller.py if needed for taskset).\
+Output:\
+controller_execution_log.txt (or your configured name) will contain the job log.\
+MCPERF_OUTPUT_FILE (e.g., mcperf_controller_run.txt) should contain the raw mcperf output.\
+Important Considerations & Potential Improvements:\
+
+mcperf Output Handling: The current readline() on tail -F's stdout might block if mcperf output is sparse. A more robust solution would use select.select or asyncio for non-blocking I/O on the mcperf_process.stdout file descriptor. For the project's scope, if mcperf updates every 2s (due to qps_interval), this might be acceptable.\
+CPU Utilization for Memcached Scaling: The script currently scales memcached primarily on SLO. CPU utilization of memcached itself could be a secondary factor (e.g., don't scale down if its own CPU util is high even if SLO is met).\
+Batch Job Resource Adjustment: The script assigns all available non-memcached cores to a single batch job at launch. It does not dynamically docker update a running batch job's cpuset-cpus. If memcached needs more cores, the current logic doesn't preempt/shrink the running batch job. A more advanced controller might pause the batch job, reconfigure memcached, then resume the batch job on fewer cores or wait.\
+Robustness: Add more comprehensive error checking and recovery.\
 Concurrency for Batch Jobs: The current script runs one batch job at a time. If there are many small, independent batch jobs and enough distinct cores, running them concurrently could be more efficient. This would significantly increase controller complexity.
-SSH for mcperf: Integrating direct SSH control for mcperf would make the setup more automated but adds complexity (key management, SSH library like paramiko).
+SSH for mcperf: Integrating direct SSH control for mcperf would make the setup more automated but adds complexity (key management, SSH library like paramiko).\
 This script provides a solid foundation. You'll need to test it thoroughly in the Google Cloud environment and likely tweak parameters and logic based on observed behavior. The mcperf output handling is a key area to ensure works reliably.
