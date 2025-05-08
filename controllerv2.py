@@ -45,7 +45,7 @@ BATCH_JOBS_SPECS = {
 }
 # Based on sensitivity table and general knowledge:
 # radix is least sensitive. ferret/freqmine are very sensitive.
-BATCH_JOB_ORDER = ["radix", "blackscholes", "canneal", "vips", "dedup", "freqmine", "ferret"]
+BATCH_JOB_ORDER = ["canneal", "dedup", "radix", "vips", "blackscholes", "ferret", "freqmine"]
 
 # --- Utility Functions ---
 def run_command(command, shell=False, check=True, capture_output=False, text=True):
@@ -320,18 +320,79 @@ def main():
 
 
             # 2. Adjust memcached cores based on SLO
-            if latest_95th_latency is not None:
-                if latest_95th_latency > MEMCACHED_SLO_MS and len(current_memcached_cores) < len(MEMCACHED_SCALED_CORES):
-                    print(f"Latency ({latest_95th_latency:.3f}ms) > SLO ({MEMCACHED_SLO_MS}ms). Scaling up memcached.")
-                    current_memcached_cores = set_memcached_affinity(MEMCACHED_PID, MEMCACHED_SCALED_CORES)
-                    logger.custom_event("memcached", f"Scaled up to {len(current_memcached_cores)} cores due to SLO miss.")
-                elif latest_95th_latency < (MEMCACHED_SLO_MS * 0.7) and len(current_memcached_cores) > len(MEMCACHED_INITIAL_CORES): # Hysteresis
-                    # Only scale down if we have cores to give back OR if no batch job is running/waiting
-                    # For now, simpler: scale down if latency is good.
-                    print(f"Latency ({latest_95th_latency:.3f}ms) well within SLO. Scaling down memcached.")
-                    current_memcached_cores = set_memcached_affinity(MEMCACHED_PID, MEMCACHED_INITIAL_CORES)
-                    logger.custom_event("memcached", f"Scaled down to {len(current_memcached_cores)} cores, SLO met.")
-                latest_95th_latency = None # Consume the reading
+            latest_95th_latency = None # Consume the reading
+
+            # <<< START OF NEW/MODIFIED SECTION FOR UPDATING RUNNING BATCH JOB >>>
+            # This section must run *after* current_memcached_cores might have been updated.
+            if current_batch_job_process and current_batch_job_name: # A batch job IS currently running
+                # Determine cores now truly available for the batch job AFTER memcached's potential change
+                newly_available_cores_for_batch_job = sorted(list(set(range(VM_TOTAL_CORES)) - set(current_memcached_cores)))
+                
+                current_batch_cpuset_str_from_docker = ""
+                try:
+                    # Inspect Docker for the container's actual current CpusetCpus
+                    # The name used here must match the --name given in `docker run`
+                    stdout, _ = run_command(
+                        f"sudo docker inspect --format='{{{{.HostConfig.CpusetCpus}}}}' {current_batch_job_name}",
+                        capture_output=True,
+                        check=True
+                    )
+                    current_batch_cpuset_str_from_docker = stdout.strip()
+                except Exception as e:
+                    print(f"Could not inspect current cpuset for {current_batch_job_name}: {e}. Will attempt update if logic dictates.")
+                    # If inspect fails, we might proceed with update based on our internal state,
+                    # or log this as a significant issue.
+
+                target_batch_cpuset_str = ",".join(map(str, newly_available_cores_for_batch_job))
+
+                # Logic to decide if an update is needed:
+                # If newly_available_cores_for_batch_job is empty, target_batch_cpuset_str will be ""
+                # Docker's representation of an empty cpuset might also be "", or it might mean "all cores" if not explicitly set.
+                # We want to ensure pinning, so if no cores are available, we set it to an empty string if possible,
+                # or a non-existent core like "99" if docker requires a value but we want to starve it.
+                # However, `docker update --cpuset-cpus=''` is usually the way to clear explicit pinning.
+
+                needs_update = False
+                if not newly_available_cores_for_batch_job: # No cores should be assigned
+                    if current_batch_cpuset_str_from_docker: # If it currently has any cores assigned
+                        target_batch_cpuset_str = "" # Explicitly set to empty
+                        needs_update = True
+                        print(f"WARNING: No cores left for running batch job {current_batch_job_name} after memcached scaling. Attempting to remove core assignment.")
+                        logger.custom_event(current_batch_job_name, "Starved for cores; attempting to update cpuset to empty.")
+                else: # Cores are available
+                    # Normalize current_batch_cpuset_str_from_docker if it's a range like "0-1" to "0,1" for comparison (simplified check)
+                    # A more robust check would parse both and compare sets of integers.
+                    # For simplicity, we'll update if the strings don't match exactly.
+                    if current_batch_cpuset_str_from_docker != target_batch_cpuset_str:
+                        needs_update = True
+                
+                if needs_update:
+                    print(f"Updating running batch job {current_batch_job_name} to new cpuset: '{target_batch_cpuset_str}' (was: '{current_batch_cpuset_str_from_docker}')")
+                    try:
+                        run_command(f"sudo docker container update --cpuset-cpus='{target_batch_cpuset_str}' {current_batch_job_name}")
+                        logger.update_cores(current_batch_job_name, newly_available_cores_for_batch_job) # Log the NEW core assignment
+                    except Exception as e:
+                        print(f"Error updating cpuset for {current_batch_job_name} to '{target_batch_cpuset_str}': {e}")
+                        logger.custom_event(current_batch_job_name, f"Failed to update cpuset to {target_batch_cpuset_str}: {e}")
+            # <<< END OF NEW/MODIFIED SECTION FOR UPDATING RUNNING BATCH JOB >>>
+
+            # 3. Manage batch jobs (This existing section header is fine)
+            # The available_cores_for_batch for LAUNCHING NEW jobs will be recalculated inside this section
+            available_cores_for_batch = [c for c in range(VM_TOTAL_CORES) if c not in current_memcached_cores]
+            
+        # if current_batch_job_process: # A job is running
+        #     if latest_95th_latency is not None:
+        #         if latest_95th_latency > MEMCACHED_SLO_MS and len(current_memcached_cores) < len(MEMCACHED_SCALED_CORES):
+        #             print(f"Latency ({latest_95th_latency:.3f}ms) > SLO ({MEMCACHED_SLO_MS}ms). Scaling up memcached.")
+        #             current_memcached_cores = set_memcached_affinity(MEMCACHED_PID, MEMCACHED_SCALED_CORES)
+        #             logger.custom_event("memcached", f"Scaled up to {len(current_memcached_cores)} cores due to SLO miss.")
+        #         elif latest_95th_latency < (MEMCACHED_SLO_MS * 0.7) and len(current_memcached_cores) > len(MEMCACHED_INITIAL_CORES): # Hysteresis
+        #             # Only scale down if we have cores to give back OR if no batch job is running/waiting
+        #             # For now, simpler: scale down if latency is good.
+        #             print(f"Latency ({latest_95th_latency:.3f}ms) well within SLO. Scaling down memcached.")
+        #             current_memcached_cores = set_memcached_affinity(MEMCACHED_PID, MEMCACHED_INITIAL_CORES)
+        #             logger.custom_event("memcached", f"Scaled down to {len(current_memcached_cores)} cores, SLO met.")
+        #         latest_95th_latency = None # Consume the reading
 
             # 3. Manage batch jobs
             available_cores_for_batch = [c for c in range(VM_TOTAL_CORES) if c not in current_memcached_cores]
