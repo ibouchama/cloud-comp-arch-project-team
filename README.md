@@ -45,7 +45,7 @@ Your cluster should now be created. Verify with the following command and get th
   8 nodes for 
 
 \
-Please go to section Part2a if you're doing Part2a. Otherwise, continue.
+Please go to section Part2a, Part4 if you're doing Part2a, Part4. Otherwise, continue.
 
 \
 To launch memcached, run this:
