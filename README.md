@@ -460,9 +460,11 @@ Then in this VM, configure the memcached file, in which I need to at least chang
 ```
 sudoedit /etc/memcached.conf #to edit this file. This file is memcached’s configuration file.
 ```
-`-l replace the localhost address with the internal IP of the memcache-server VM`
+change to:
+- `-m 1024`
+- `-l replace the localhost address with the internal IP of the memcache-server VM`
 
-Save by pressing `Ctrl+O` then hit `Enter`
+Save by pressing `Ctrl+O` then hit `Enter`\
 Exit by pressing `Ctrl+X`
 
 Then in this VM, restart memcached with the new configuration:
@@ -485,7 +487,7 @@ bash vm_setup_4.sh
 Then
 change the vm names in run_experiment_4.sh and then 
 ```
-bash run_experiment_4.sh
+bash run_mcperf_agent_4.sh # bash run_experiment_4.sh
 ```
 
 

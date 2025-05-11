@@ -7,9 +7,9 @@ SSH_USER="ubuntu"
 SSH_KEY="$HOME/.ssh/cloud-computing"    # adjust if needed
 
 # GKE node / GCE instance names
-MEMCACHE_NODE="memcache-server-xt2n"
-AGENT_INSTANCE="client-agent-8pmq"
-MEASURE_INSTANCE="client-measure-s855"
+MEMCACHE_NODE="memcache-server-swqx"
+AGENT_INSTANCE="client-agent-sz3v"
+MEASURE_INSTANCE="client-measure-9w2p"
 
 # ─── Discover internal IPs ─────────────────────────────────────────────────────
 echo "⏳ Fetching internal IPs…"

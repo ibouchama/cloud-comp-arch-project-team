@@ -6,8 +6,8 @@ ZONE="europe-west1-b"
 SSH_USER="ubuntu"
 
 # Your Part-4 instance names
-CLIENT_AGENT="client-agent-8pmq"
-CLIENT_MEASURE="client-measure-s855"
+CLIENT_AGENT="client-agent-sz3v"
+CLIENT_MEASURE="client-measure-9w2p"
 
 # ─── Script to set up a single VM ──────────────────────────────────────────────
 setup_vm() {
