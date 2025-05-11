@@ -443,3 +443,54 @@ Last but not least, DELETE THE CLUSTER!!!!!!
 kops delete cluster part3.k8s.local --yes
 ```
 
+# Part4
+ssh into the memcache VM
+```
+gcloud compute ssh memcache-server-xt2n --zone=europe-west1-b
+```
+Then in this VM, do
+```
+sudo apt update
+sudo apt install -y memcached libmemcached-tools
+
+sudo systemctl status memcached
+```
+
+Then in this VM, configure the memcached file, in which I need to at least change the memcache name:
+```
+sudoedit /etc/memcached.conf #to edit this file. This file is memcached’s configuration file.
+```
+`-l replace the localhost address with the internal IP of the memcache-server VM`
+
+Save by pressing `Ctrl+O` then hit `Enter`
+Exit by pressing `Ctrl+X`
+
+Then in this VM, restart memcached with the new configuration:
+```
+sudo systemctl restart memcached
+```
+
+Then Run
+```
+sudo systemctl status memcached
+```
+again should yield an output similar as before, but you should see the updated parameters in the command line. If you completed these steps successfully, memcached should be running and listening for requests on the VMs internal IP on port 11211.
+
+change the VMs name in `vm_setup_4.sh`
+On the local machine (use another terminal), do
+```
+bash vm_setup_4.sh
+```
+
+Then
+change the vm names in run_experiment_4.sh and then 
+```
+bash run_experiment_4.sh
+```
+
+
+\
+Last but not least, DELETE THE CLUSTER!!!!!!
+```
+kops delete cluster part4.k8s.local --yes
+```
