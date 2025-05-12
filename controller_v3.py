@@ -8,6 +8,7 @@ from datetime import datetime
 import docker
 import urllib.parse
 import psutil
+import subprocess
 
 
 
@@ -36,11 +37,39 @@ def run_job(job : Job, cores : list[str], threads: int, quota : int =None):
     return client.containers.run(get_image(job), f"./run -a run -S {job_type} -p {job.value} -i native -n {threads}", detach=True, cpuset_cpus=cpu_param, name=job.value, cpu_quota=quota, remove=False)
 
 def get_pid():
-    with open("/var/run/memcached/memcached.pid", "r") as f:
-        pid = f.read().strip()
+    try:
+        output = subprocess.check_output(['pgrep', '-x', '-n', "memcached"])
+        pid = int(output.strip())
         return pid
+    except subprocess.CalledProcessError as e:
+        print(f"Can't find the pid : {e}")
+        return None
 
 
 def taskset_memcached(cores: list[str]):
     os.system(f"sudo taskset -pc {",".join(cores)} {get_pid()}")
     LOG.update_cores(Job.MEMCACHED, cores)
+
+def update_docker(container, quota: int =None, cores: list[str]=["0"]):
+    try:
+        container.update(cpuset_cpus=",".join(cores), cpu_quota=quota)
+    except Exception as e:
+        print(f"error updating container {container} : {e}")
+
+
+def next_benchmark(previous_job : Job):
+
+    match previous_job:
+        case Job.BLACKSCHOLES:
+            container_23 = run_job(Job.DEDUP, ["2", "3"], 2)
+        case Job.DEDUP:
+            container_23 = run_job(Job.FERRET, ["2", "3"], 2)
+        case Job.FERRET:
+            container_23 = run_job(Job.FREQMINE, ["2", "3"], 2)
+        case Job.FREQMINE:
+            container_23 = run_job(Job.RADIX, ["2", "3"], 2)
+        case Job.RADIX:
+            container_23 = run_job(Job.VIPS, ["2", "3"], 2)
+        case Job.VIPS:
+            update_docker(container_1, quota=100000, cores=["2", "3"])
+
