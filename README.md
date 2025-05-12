@@ -463,6 +463,7 @@ sudoedit /etc/memcached.conf #to edit this file. This file is memcached’s conf
 change to:
 - `-m 1024`
 - `-l replace the localhost address with the internal IP of the memcache-server VM`
+- `-t 2`
 
 Save by pressing `Ctrl+O` then hit `Enter`\
 Exit by pressing `Ctrl+X`
@@ -487,10 +488,36 @@ bash vm_setup_4.sh
 Then
 change the vm names in run_experiment_4.sh and then 
 ```
-bash run_mcperf_agent_4.sh # bash run_experiment_4.sh
+bash run_experiment_4.sh 1
 ```
+Then clear cache before each run
+```
+gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command "echo 'flush_all' | nc localhost 11211"
+```
+Then
+```
+bash run_experiment_4.sh 2
+```
+Then clear cache before each run
+```
+gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command "echo 'flush_all' | nc localhost 11211"
+```
+Then
+```
+bash run_experiment_4.sh 3
+```
+See results in `part_4_results_group_094_egs/` .
 
+\
+Then install Python and psutil
+```
+sudo apt install -y python3-pip
+sudo apt install -y docker.io
+sudo pip3 install psutil
+sudo pip3 install docker
 
+sudo usermod -a -G docker ubuntu
+```
 \
 Last but not least, DELETE THE CLUSTER!!!!!!
 ```
