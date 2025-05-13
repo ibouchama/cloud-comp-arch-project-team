@@ -34,8 +34,11 @@ class SchedulerController:
         self.process = psutil.Process(int(self.memcached_pid))
         self.cpu_percent = lambda: psutil.cpu_percent(percpu=True, interval=None)
         self.cpu_mem_percent = lambda : psutil.virtual_memory().percent
-        self.quota
+        # self.quota
+        # self.prev_quota = 100000
+        # start off assuming full quota
         self.prev_quota = 100000
+        self.quota = self.prev_quota
 
     def _get_memcached_pid(self):
         try:
@@ -165,7 +168,7 @@ class SchedulerController:
         self._adjust_mem_cores(self.memcached_cores)
         self._launch_canneal()
         self._launch_next()
-        t=Thread(target=scheduling, daemon=True)
+        t=Thread(target=self.scheduling, daemon=True)
         t.start()
         
         while self.client.containers.list(filters={"label" : ["scheduler=true"], "status" : "running"}) or self.queue:
