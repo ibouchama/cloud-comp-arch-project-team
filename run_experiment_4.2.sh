@@ -7,8 +7,13 @@ if [[ $# -ne 1 ]]; then
 fi
 RUN_NUM=$1
 GROUP=094
-RESULT_DIR="part_4a_t2c2"
+RESULT_DIR="part_4.2_t2c2"
 mkdir -p "${RESULT_DIR}"
+
+# ─── Test parameters ───────────────────────────────────────────────────────────
+# run mcperf for this many seconds (must be ≥ 60)
+MCperf_DURATION=1200 # 20 minutes  
+IDLE_AFTER=60       # seconds of idle memcached
 
 # ─── Configuration ─────────────────────────────────────────────────────────────
 ZONE="europe-west1-b"
@@ -45,19 +50,28 @@ echo -e "\n=== 2) Run dynamic load on $CLIENT_MEASURE_VM ==="
 gcloud compute ssh "${SSH_USER}@${CLIENT_MEASURE_VM}" \
   --zone "$ZONE" \
   --ssh-key-file ~/.ssh/cloud-computing \
-   --command "bash -lc '
-     cd ~/memcache-perf-dynamic
-     ./mcperf -s ${MEMCACHED_IP} --loadonly
+  -- bash -s <<EOF | tee "${RESULT_DIR}/mcperf_${RUN_NUM}.txt"
+cd ~/memcache-perf-dynamic
 
-    START_TS=\$(date +%s%3N)
-    echo \"Timestamp start: \$START_TS\"
+# preload
+./mcperf -s ${MEMCACHED_IP} --loadonly
 
-     ./mcperf \
-       -s ${MEMCACHED_IP} \
-       -a ${AGENT_IP} \
-       --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 \
-       --scan 5000:220000:5000
+START_TS=\$(date +%s)
+echo "\$(date +%T)  Starting mcperf load (duration=${MCperf_DURATION}s)"
 
-    END_TS=\$(date +%s%3N)
-    echo \"Timestamp end: \$END_TS\"
-  '" | tee "${RESULT_DIR}/mcperf_${RUN_NUM}.txt"
+# do the dynamic load
+./mcperf \
+  -s ${MEMCACHED_IP} \
+  -a ${AGENT_IP} \
+  --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 \
+  -t ${MCperf_DURATION} \
+  --qps_interval 10 --qps_min 5000 --qps_max 180000
+
+END_TS=\$(date +%s)
+echo "\$(date +%T)  Finished load. Elapsed: \$(( END_TS - START_TS ))s"
+
+# now guarantee 1 minute of “running alone”
+echo "\$(date +%T)  Sleeping ${IDLE_AFTER}s to let memcached run alone…"
+sleep ${IDLE_AFTER}
+echo "\$(date +%T)  Running-alone window complete."
+EOF

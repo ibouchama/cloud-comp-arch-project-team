@@ -522,15 +522,76 @@ bash run_experiment_4a.sh 3
 See results in `part_4a/` .
 
 \
-Then install Python and psutil
+In the memcached vm, get Docker, Git, and the Python bindings installed:
 ```
-sudo apt install -y python3-pip
-sudo apt install -y docker.io
-sudo pip3 install psutil
-sudo pip3 install docker
+sudo apt update
+sudo apt install -y docker.io python3-pip git
+sudo usermod -aG docker $USER
+newgrp docker
+sudo apt install -y python3-docker python3-psutil
+```
 
-sudo usermod -a -G docker ubuntu
+Clone or Pull (if any modification in controller.py):
+Clone your controller repo (part4 branch):
 ```
+cd ~
+git clone -b part4 https://github.com/ibouchama/cloud-comp-arch-project-team.git controller
+cd controller
+ls controller.py scheduler_logger.py
+```
+
+After a change in controller.py, we Pull the controller repo (part4 branch) again:
+```
+cd ~/controller
+git pull origin part4
+ls controller.py scheduler_logger.py
+```
+
+Then if any modification in controller.py, we need to kill any old instance:
+```
+pkill -f controller.py
+cd ~/controller
+```
+
+Start the SchedulerController:
+```
+nohup python3 controller.py > controller.log 2>&1 &
+echo "Started scheduler (PID=$!), logs → ~/controller/controller.log"
+```
+
+Verify it’s running:
+```
+ps aux | grep controller.py
+tail -n 20 controller.log
+```
+
+Verify Docker state:
+If you want to see only containers your scheduler are still running, run:
+```
+docker ps --filter label=scheduler=true
+```
+
+If you want to see every container your scheduler ever launched (including the ones that already exited), run:
+```
+docker ps -a --filter label=scheduler=true
+```
+
+\
+1. Copy the file into your home directory on the VM:
+```
+gcloud compute scp \
+  --zone europe-west1-b \
+  ~/MA2/CCA/serious_project/controller_v1.py \
+  ubuntu@memcache-server-9sh9:~/
+```
+2. SSH in and move it into `controller/`:
+```
+gcloud compute ssh ubuntu@memcache-server-9sh9 --zone europe-west1-b --command "
+  mkdir -p ~/controller &&
+  mv ~/controller_v1.py ~/controller/
+"
+```
+
 \
 Last but not least, DELETE THE CLUSTER!!!!!!
 ```
