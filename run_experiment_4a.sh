@@ -7,7 +7,7 @@ if [[ $# -ne 1 ]]; then
 fi
 RUN_NUM=$1
 GROUP=094
-RESULT_DIR="part_4_results_group_${GROUP}"
+RESULT_DIR="part_4a_t2c2"
 mkdir -p "${RESULT_DIR}"
 
 # ─── Configuration ─────────────────────────────────────────────────────────────
@@ -15,9 +15,9 @@ ZONE="europe-west1-b"
 SSH_USER="ubuntu"
 
 # VM names
-MEMCACHE_VM="memcache-server-cgvn"
-CLIENT_AGENT_VM="client-agent-wmf6"
-CLIENT_MEASURE_VM="client-measure-21z7"
+MEMCACHE_VM="memcache-server-60fm"
+CLIENT_AGENT_VM="client-agent-w4ld"
+CLIENT_MEASURE_VM="client-measure-bsd5"
 
 # ─── Helper to get internal IP ──────────────────────────────────────────────────
 get_ip() {
@@ -45,12 +45,19 @@ echo -e "\n=== 2) Run dynamic load on $CLIENT_MEASURE_VM ==="
 gcloud compute ssh "${SSH_USER}@${CLIENT_MEASURE_VM}" \
   --zone "$ZONE" \
   --ssh-key-file ~/.ssh/cloud-computing \
-  --command "nohup \$HOME/memcache-perf-dynamic/mcperf -s ${MEMCACHED_IP} --loadonly > mcperf-loadonly.log 2>&1 & sleep 5; \
-             nohup \$HOME/memcache-perf-dynamic/mcperf \
-               -s ${MEMCACHED_IP} \
-               -a ${AGENT_IP} \
-               --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 10 \
-               --qps_interval 2 --qps_min 5000 --qps_max 180000 && 
-               > mcperf-measure.log 2>&1 &"
+   --command "bash -lc '
+     cd ~/memcache-perf-dynamic
+     ./mcperf -s ${MEMCACHED_IP} --loadonly
 
-echo -e "\n✅ Run #${RUN_NUM} complete. Results stored in ${RESULT_DIR}/"
+    START_TS=\$(date +%s%3N)
+    echo \"Timestamp start: \$START_TS\"
+
+     ./mcperf \
+       -s ${MEMCACHED_IP} \
+       -a ${AGENT_IP} \
+       --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 5 \
+       --scan 5000:220000:5000
+
+    END_TS=\$(date +%s%3N)
+    echo \"Timestamp end: \$END_TS\"
+  '" | tee "${RESULT_DIR}/mcperf_${RUN_NUM}.txt"

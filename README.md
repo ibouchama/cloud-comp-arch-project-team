@@ -463,7 +463,7 @@ sudoedit /etc/memcached.conf #to edit this file. This file is memcached’s conf
 change to:
 - `-m 1024`
 - `-l replace the localhost address with the internal IP of the memcache-server VM`
-- `-t 2`
+- `-t 1` if number of threads = 1, or `-t 2` if number of threads = 2
 
 Save by pressing `Ctrl+O` then hit `Enter`\
 Exit by pressing `Ctrl+X`
@@ -479,24 +479,29 @@ sudo systemctl status memcached
 ```
 again should yield an output similar as before, but you should see the updated parameters in the command line. If you completed these steps successfully, memcached should be running and listening for requests on the VMs internal IP on port 11211.
 
-change the VMs name in `vm_setup_4.sh`
+Then in this same vm,
+```
+pidof memcached
+sudo taskset -cp 0 <pid>
+```
+for number of cores = 1
+
+```
+sudo taskset -cp 0,1 <pid>
+```
+for number of cores = 2
+
+\
+Change the VMs name in `vm_setup_4.sh`
 On the local machine (use another terminal), do
 ```
 bash vm_setup_4.sh
 ```
 
 Then
-change the vm names in run_experiment_4.sh and then 
+change the vm names in run_experiment_4a.sh and then 
 ```
-bash run_experiment_4.sh 1
-```
-Then clear cache before each run
-```
-gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command "echo 'flush_all' | nc localhost 11211"
-```
-Then
-```
-bash run_experiment_4.sh 2
+bash run_experiment_4a.sh 1
 ```
 Then clear cache before each run
 ```
@@ -504,9 +509,17 @@ gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command
 ```
 Then
 ```
-bash run_experiment_4.sh 3
+bash run_experiment_4a.sh 2
 ```
-See results in `part_4_results_group_094_egs/` .
+Then clear cache before each run
+```
+gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command "echo 'flush_all' | nc localhost 11211"
+```
+Then
+```
+bash run_experiment_4a.sh 3
+```
+See results in `part_4a/` .
 
 \
 Then install Python and psutil

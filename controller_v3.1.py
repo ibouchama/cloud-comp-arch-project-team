@@ -56,7 +56,7 @@ class SchedulerController:
         img = f"anakli/cca:{mode}_{job.value}"
         cmd = f"./run -a run -S {mode} -p {job.value} -i native -n 2"
         cpus = ','.join(str(c) for c in self.batch_cores)
-        cont = self.client.containers.run(
+        cont = self.client.containers.run( #run with Docker
             img, cmd, detach=True, name=job.value, cpuset_cpus=cpus
         )
         self.LOG.job_start(job, [str(c) for c in self.batch_cores], 2)
