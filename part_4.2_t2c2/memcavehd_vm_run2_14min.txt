@@ -1,0 +1,92 @@
+ann20010929@memcache-server-7rsv:~/controller$ cd ~/controller
+git pull origin part4
+ls controller.py scheduler_logger.py
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 3 (delta 2), reused 3 (delta 2), pack-reused 0 (from 0)
+Unpacking objects: 100% (3/3), 558 bytes | 558.00 KiB/s, done.
+From https://github.com/ibouchama/cloud-comp-arch-project-team
+ * branch            part4      -> FETCH_HEAD
+   f0b4950..3a35206  part4      -> origin/part4
+Updating f0b4950..3a35206
+Fast-forward
+ README.md | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+controller.py  scheduler_logger.py
+ann20010929@memcache-server-7rsv:~/controller$ pkill -f controller.py
+cd ~/controller
+ann20010929@memcache-server-7rsv:~/controller$ nohup python3 controller.py > controller.log 2>&1 &
+echo "Started scheduler (PID=$!), logs → ~/controller/controller.log"
+[1] 86740
+Started scheduler (PID=86740), logs → ~/controller/controller.log
+ann20010929@memcache-server-7rsv:~/controller$ ps aux | grep controller.py
+tail -n 20 controller.log
+ann2001+   86740  2.7  0.0 115020 30696 pts/0    Sl   16:38   0:00 python3 controller.py
+ann2001+   87157  0.0  0.0   7084  2176 pts/0    S+   16:38   0:00 grep --color=auto controller.py
+nohup: ignoring input
+pid 9842's current affinity list: 0
+pid 9842's new affinity list: 0,1
+pid 9842's current affinity list: 0,1
+pid 9842's new affinity list: 0
+ann20010929@memcache-server-7rsv:~/controller$ docker ps -a --filter label=scheduler=true
+CONTAINER ID   IMAGE                        COMMAND                  CREATED          STATUS          PORTS     NAMES
+b113a0769956   anakli/cca:parsec_freqmine   "./run -a run -S par…"   34 seconds ago   Up 34 seconds             freqmine
+ann20010929@memcache-server-7rsv:~/controller$ docker ps -a --filter label=scheduler=true
+CONTAINER ID   IMAGE                        COMMAND                  CREATED              STATUS                          PORTS     NAMES
+75166b0d2fdd   anakli/cca:parsec_ferret     "./run -a run -S par…"   About a minute ago   Up About a minute                         ferret
+b113a0769956   anakli/cca:parsec_freqmine   "./run -a run -S par…"   5 minutes ago        Exited (0) About a minute ago             freqmine
+ann20010929@memcache-server-7rsv:~/controller$ docker ps -a --filter label=scheduler=true
+CONTAINER ID   IMAGE                        COMMAND                  CREATED         STATUS                     PORTS     NAMES
+75166b0d2fdd   anakli/cca:parsec_ferret     "./run -a run -S par…"   2 minutes ago   Up 2 minutes                         ferret
+b113a0769956   anakli/cca:parsec_freqmine   "./run -a run -S par…"   7 minutes ago   Exited (0) 2 minutes ago             freqmine
+ann20010929@memcache-server-7rsv:~/controller$ docker ps -aq --filter label=scheduler=true \
+  | xargs -n1 -I{} sh -c \
+      'echo -n "$(docker inspect --format="{{.Name}}" {}) → "; \
+       docker inspect --format="{{.HostConfig.CpusetCpus}}" {}'
+xargs: warning: options --max-args and --replace/-I/-i are mutually exclusive, ignoring previous --max-args value
+/ferret → 2,3
+/freqmine → 2,3
+ann20010929@memcache-server-7rsv:~/controller$ docker ps -aq --filter label=scheduler=true   | xargs -n1 -I{} sh -c       'echo -n "$(docker inspect --format="{{.Name}}" {}) → "; \
+       docker inspect --format="{{.HostConfig.CpusetCpus}}" {}'
+xargs: warning: options --max-args and --replace/-I/-i are mutually exclusive, ignoring previous --max-args value
+/vips → 2,3
+/blackscholes → 2,3
+/canneal → 2,3
+/ferret → 2,3
+/freqmine → 2,3
+ann20010929@memcache-server-7rsv:~/controller$ docker ps -a --filter label=scheduler=true
+CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS                          PORTS     NAMES
+ae3825a9f05e   anakli/cca:parsec_vips           "./run -a run -S par…"   12 seconds ago       Up 11 seconds                             vips
+fc18332c12c8   anakli/cca:parsec_blackscholes   "./run -a run -S par…"   About a minute ago   Exited (0) 13 seconds ago                 blackscholes
+4038e62f91e0   anakli/cca:parsec_canneal        "./run -a run -S par…"   4 minutes ago        Exited (0) About a minute ago             canneal
+75166b0d2fdd   anakli/cca:parsec_ferret         "./run -a run -S par…"   8 minutes ago        Exited (0) 4 minutes ago                  ferret
+b113a0769956   anakli/cca:parsec_freqmine       "./run -a run -S par…"   12 minutes ago       Exited (0) 8 minutes ago                  freqmine
+ann20010929@memcache-server-7rsv:~/controller$ docker ps -a --filter label=scheduler=true
+CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS                          PORTS     NAMES
+49f5f69d39ab   anakli/cca:parsec_dedup          "./run -a run -S par…"   49 seconds ago       Exited (0) 33 seconds ago                 dedup
+5a1c305a3be6   anakli/cca:splash2x_radix        "./run -a run -S spl…"   About a minute ago   Exited (0) 48 seconds ago                 radix
+ae3825a9f05e   anakli/cca:parsec_vips           "./run -a run -S par…"   2 minutes ago        Exited (0) About a minute ago             vips
+fc18332c12c8   anakli/cca:parsec_blackscholes   "./run -a run -S par…"   3 minutes ago        Exited (0) 2 minutes ago                  blackscholes
+4038e62f91e0   anakli/cca:parsec_canneal        "./run -a run -S par…"   6 minutes ago        Exited (0) 3 minutes ago                  canneal
+75166b0d2fdd   anakli/cca:parsec_ferret         "./run -a run -S par…"   10 minutes ago       Exited (0) 6 minutes ago                  ferret
+b113a0769956   anakli/cca:parsec_freqmine       "./run -a run -S par…"   14 minutes ago       Exited (0) 10 minutes ago                 freqmine
+[1]+  Done                    nohup python3 controller.py > controller.log 2>&1
+ann20010929@memcache-server-7rsv:~/controller$ docker ps -aq --filter label=scheduler=true   | xargs -n1 -I{} sh -c       'echo -n "$(docker inspect --format="{{.Name}}" {}) → "; \
+       docker inspect --format="{{.HostConfig.CpusetCpus}}" {}'
+xargs: warning: options --max-args and --replace/-I/-i are mutually exclusive, ignoring previous --max-args value
+/dedup → 2,3
+/radix → 2,3
+/vips → 2,3
+/blackscholes → 2,3
+/canneal → 2,3
+/ferret → 2,3
+/freqmine → 2,3
+ann20010929@memcache-server-7rsv:~/controller$ docker rm -f $(docker ps -aq --filter label=scheduler=true)
+49f5f69d39ab
+5a1c305a3be6
+ae3825a9f05e
+fc18332c12c8
+4038e62f91e0
+75166b0d2fdd
+b113a0769956

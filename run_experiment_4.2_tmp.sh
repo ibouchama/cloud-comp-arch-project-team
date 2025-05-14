@@ -55,7 +55,7 @@ gcloud compute ssh "${SSH_USER}@${CLIENT_MEASURE_VM}" \
      ./mcperf \
        -s ${MEMCACHED_IP} \
        -a ${AGENT_IP} \
-       --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 1800 \ 
+       --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 960 \
        --qps_interval 10 --qps_min 5000 --qps_max 180000
 
     END_TS=\$(date +%s%3N)
