@@ -22,7 +22,7 @@ class SchedulerController:
 
         # Job list
         self.benchmarks = benchmarks or [
-            Job.BLACKSCHOLES, Job.CANNEAL, Job.DEDUP,
+            Job.BLACKSCHOLES, Job.DEDUP,
             Job.FERRET, Job.FREQMINE, Job.RADIX, Job.VIPS
         ]
         self.queue = self.benchmarks.copy()
