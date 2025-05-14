@@ -18,8 +18,11 @@ class SchedulerController:
                  batch_cores=None,
                  interval=0.1):
         self.client = docker.from_env()
-        self.LOG = SchedulerLogger()
-        
+        # self.LOG = SchedulerLogger()
+        # if the env var JOBS_LOG is set, the logger will write there:
+        logpath = os.getenv("JOBS_LOG", None)
+        self.LOG = SchedulerLogger(logfile=logpath)
+
         self.benchmarks = benchmarks or [Job.FREQMINE, Job.FERRET, Job.CANNEAL,
                  Job.BLACKSCHOLES, Job.VIPS, Job.RADIX, Job.DEDUP]
 

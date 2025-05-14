@@ -18,10 +18,20 @@ class Job(Enum):
 
 
 class SchedulerLogger:
-    def __init__(self):
-        start_date = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # def __init__(self):
+    #     start_date = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        self.file = open(f"log{start_date}.txt", "w")
+    #     self.file = open(f"log{start_date}.txt", "w")
+    #     self._log("start", Job.SCHEDULER)
+    def __init__(self, logfile: str | None = None):
+        """
+        If logfile is None, fall back to timestamped name; 
+        otherwise write everything to `logfile`.
+        """
+        if logfile is None:
+            start_date = datetime.now().strftime("%Y%m%d_%H%M%S")
+            logfile = f"log{start_date}.txt"
+        self.file = open(logfile, "w")
         self._log("start", Job.SCHEDULER)
 
     def _log(self, event: str, job_name: Job, args: str = "") -> None:
