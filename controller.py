@@ -95,13 +95,18 @@ class SchedulerController:
             desired = self.memcached_cores  # no change
         if desired != self.memcached_cores:
             self.adjust_mem_cores(desired)
-            # if mem down to 1 core, give next batch job in queue an extra core
-            if len(desired)==1 and self.queue:
-                nextjob = self.queue.pop(0)
-                c = self.client.containers.get(nextjob.value)
-                newcpus = '2,3'
-                c.update(cpuset_cpus=newcpus)
-                self.LOG.update_cores(nextjob, ['2','3'])
+            # # if mem down to 1 core, give next batch job in queue an extra core
+            # if len(desired)==1 and self.queue:
+            #     nextjob = self.queue.pop(0)
+            #     c = self.client.containers.get(nextjob.value)
+            #     newcpus = '2,3'
+            #     c.update(cpuset_cpus=newcpus)
+            #     self.LOG.update_cores(nextjob, ['2','3'])
+            # if mem down to 1 core, give the *currently running* batch job a second core
+            if len(desired)==1 and hasattr(self, 'current'):
+                c = self.client.containers.get(self.current.value)
+                c.update(cpuset_cpus="2,3")
+                self.LOG.update_cores(self.current, ['2','3'])
 
     def run(self):
         # clean up
