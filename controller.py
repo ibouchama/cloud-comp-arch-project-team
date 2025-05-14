@@ -36,6 +36,11 @@ class SchedulerController:
 
         # Runtime state
         self.interval = interval
+        # For quota‐based throttling:
+        self.cpu_percent = lambda: psutil.cpu_percent(percpu=False, interval=None)
+        self.prev_quota = 100_000       # μs of CPU per 100 ms period → 100% of one core
+        self.quota      = self.prev_quota
+
 
         # Discover memcached PID
         self.memcached_pid = self._get_memcached_pid()
@@ -87,6 +92,57 @@ class SchedulerController:
         )
         self.LOG.job_start(job, [str(c) for c in self.memcached_cores], 1)
 
+    def memcached_quotas(self):
+        memcached_cpu = self.process.cpu_percent(interval=self.interval)
+
+        if memcached_cpu > 95:
+            self.quota = 0
+        elif memcached_cpu > 80:
+            self.quota = 10000
+        elif memcached_cpu > 75:
+            self.quota = 20000
+        elif memcached_cpu > 65:
+            self.quota = 30000
+        elif memcached_cpu > 60:
+            self.quota = 35000
+        elif memcached_cpu > 50:
+            self.quota = 40000
+        elif memcached_cpu > 45:
+            self.quota = 50000
+        elif memcached_cpu > 35:
+            self.quota = 60000
+        elif memcached_cpu > 20:
+            self.quota = 20000
+        else:
+            self.quota = 100000
+        
+        mem_usage = self.cpu_mem_percent()
+
+        if self.quota != self.prev_quota:
+            try:
+                if self.prev_quota == 0:
+                    self.shared_container.unpause()
+                    self.LOG.job_unpause(Job(self.shared_container.name))
+                elif self.quota == 0:
+                    self.shared_container.pause()
+                    self.LOG.job_pause(Job(self.shared_container.name))
+            except Exception as e:
+                print(f"Error pausing/unpausing {Job(self.shared_container.name)} : {e}")
+
+            if self.quota == 100000:
+                self._adjust_mem_cores([0])
+            elif self.prev_quota == 100000:
+                self._adjust_mem_cores([0,1])
+
+            try:
+                self.shared_container.update(cpu_quota=self.quota)
+            except Exception as e:
+                print(f"Error updating quotas in shared container for core 1: {e} ")
+        
+
+        self.prev_quota = self.quota
+        #TODO: Log data
+
     def scheduling(self):
         for event in self.client.events(decode=True):
             if event.get('Type') == 'container' and event.get('Action') == 'die':
@@ -134,8 +190,11 @@ class SchedulerController:
         while (self.client.containers.list(
                    filters={"label": ["scheduler=true"], "status": "running"}
                ) or self.queue):
+            # measure memcached CPU usage and update cpu_quota / pause‐unpause
+            self.memcached_quotas()
+            # sleep a bit before re‐sampling
             sleep(self.interval)
-
+        
         # all done: leave memcached alone for 60s
         elapsed = datetime.now() - start
         print(f"Finished batch in {elapsed}, idling 60s…")
