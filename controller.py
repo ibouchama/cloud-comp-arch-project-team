@@ -161,15 +161,20 @@ class SchedulerController:
 
 
     def run(self):
-        self.remove_containers()
-        self.LOG.__init__()
-        start = datetime.now()
-        self.LOG.job_start(Job.MEMCACHED, ["0", "1"], 2)
+        # self.remove_containers()
+        # self.LOG.__init__()
+        # start = datetime.now()
+        # self.LOG.job_start(Job.MEMCACHED, ["0", "1"], 2)
         # self._adjust_mem_cores(self.memcached_cores)
         # self._launch_canneal()
         # self._launch_next()
         # t=Thread(target=self.scheduling, daemon=True)
         # t.start()
+        self.remove_containers()
+        self.LOG.__init__()
+        start = datetime.now()
+        self.LOG.job_start(Job.MEMCACHED, ["0", "1"], 2)
+        # start listening *before* we fire off any containers
         t = Thread(target=self.scheduling, daemon=True)
         t.start()
 
