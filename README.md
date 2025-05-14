@@ -499,7 +499,8 @@ bash vm_setup_4.sh
 ```
 
 Then
-change the vm names in run_experiment_4a.sh and then 
+change the vm names in run_experiment_4a.sh (Same for run_experiment_4.2.sh. Results in `part_4.2_t2c2/`)\
+and then 
 ```
 bash run_experiment_4a.sh 1
 ```
@@ -520,6 +521,7 @@ Then
 bash run_experiment_4a.sh 3
 ```
 See results in `part_4a/` .
+
 
 \
 In the memcached vm, get Docker, Git, and the Python bindings installed:
