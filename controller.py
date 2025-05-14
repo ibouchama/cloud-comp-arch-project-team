@@ -20,11 +20,8 @@ class SchedulerController:
         self.client = docker.from_env()
         self.LOG = SchedulerLogger()
         
-        self.benchmarks = benchmarks or [
-            Job.BLACKSCHOLES, Job.DEDUP,
-            Job.FERRET, Job.FREQMINE,
-            Job.RADIX, Job.VIPS, Job.CANNEAL
-        ]
+        self.benchmarks = benchmarks or [Job.FREQMINE, Job.FERRET, Job.CANNEAL,
+                 Job.BLACKSCHOLES, Job.VIPS, Job.RADIX, Job.DEDUP]
 
         # reorder from longest→shortest:
         order = [Job.FREQMINE, Job.FERRET, Job.CANNEAL,
@@ -122,16 +119,28 @@ class SchedulerController:
         t = Thread(target=lambda: [self.monitor_mem() or sleep(self.interval) for _ in iter(int,1)], daemon=True)
         t.start()
 
-        # 4) Start the Docker-event watcher that will re-launch jobs
-        watcher = Thread(target=self.scheduling, daemon=True)
-        watcher.start()
+        # ─── 3) Sequentially launch each batch job, waiting for it to finish
+        while self.queue:
+            # pop the next job off the queue
+            job = self.queue.pop(0)
 
-        # 5) Kick off exactly one batch job (the longest one, per your pre-sorted queue)
-        self._launch_next()
+            img = f"anakli/cca:{'splash2x' if job==Job.RADIX else 'parsec'}_{job.value}"
+            cmd = f"./run -a run -S {'splash2x' if job==Job.RADIX else 'parsec'} \
+                   -p {job.value} -i native -n 2"
 
-        # wait for all to finish
-        while self.client.containers.list(filters={"label":["scheduler=true"],"status":"running"}):
-            sleep(self.interval)
+            # start it on cores 2,3
+            container = self.client.containers.run(
+                img, cmd, detach=True,
+                name=job.value,
+                cpuset_cpus="2,3",
+                labels={"scheduler":"true"}
+            )
+            self.LOG.job_start(job, ["2","3"], 2)
+
+            # wait *here* until it exits
+            container.wait()
+            self.LOG.job_end(job)
+
         # done
         self.LOG.job_end(Job.MEMCACHED)
         self.LOG._log("end", Job.SCHEDULER)
