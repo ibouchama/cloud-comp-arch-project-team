@@ -165,11 +165,17 @@ class SchedulerController:
         self.LOG.__init__()
         start = datetime.now()
         self.LOG.job_start(Job.MEMCACHED, ["0", "1"], 2)
+        # self._adjust_mem_cores(self.memcached_cores)
+        # self._launch_canneal()
+        # self._launch_next()
+        # t=Thread(target=self.scheduling, daemon=True)
+        # t.start()
+        t = Thread(target=self.scheduling, daemon=True)
+        t.start()
+
         self._adjust_mem_cores(self.memcached_cores)
         self._launch_canneal()
         self._launch_next()
-        t=Thread(target=self.scheduling, daemon=True)
-        t.start()
         
         while self.client.containers.list(filters={"label" : ["scheduler=true"], "status" : "running"}) or self.queue:
             time = datetime.now().timestamp()
