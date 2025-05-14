@@ -89,7 +89,7 @@ class SchedulerController:
 
     def scheduling(self):
         for event in self.client.events(decode=True):
-            if event.get('Type') == 'container' and event.get('Action') in ['die', 'stop']:
+            if event.get('Type') == 'container' and event.get('Action') == 'die':
                 container_id = event.get('id')
                 container = self.client.containers.get(container_id)
                 job = Job(container.name)
