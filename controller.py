@@ -41,6 +41,7 @@ class SchedulerController:
         self.prev_quota = 100_000       # μs of CPU per 100 ms period → 100% of one core
         self.quota      = self.prev_quota
 
+        self.cpu_mem_percent = lambda : psutil.virtual_memory().percent
 
         # Discover memcached PID
         self.memcached_pid = self._get_memcached_pid()
