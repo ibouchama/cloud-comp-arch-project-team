@@ -482,12 +482,12 @@ again should yield an output similar as before, but you should see the updated p
 Then in this same vm,
 ```
 pidof memcached
-sudo taskset -cp 0 <pid>
+sudo taskset -acp 0 <pid>
 ```
 for number of cores = 1
 
 ```
-sudo taskset -cp 0,1 <pid>
+sudo taskset -acp 0,1 <pid>
 ```
 for number of cores = 2
 
@@ -574,6 +574,19 @@ docker ps --filter label=scheduler=true
 If you want to see every container your scheduler ever launched (including the ones that already exited), run:
 ```
 docker ps -a --filter label=scheduler=true
+```
+
+To know which jobs (for those exited too) are/were running on which cores:
+```
+docker ps -aq --filter label=scheduler=true \
+  | xargs -n1 -I{} sh -c \
+      'echo -n "$(docker inspect --format="{{.Name}}" {}) → "; \
+       docker inspect --format="{{.HostConfig.CpusetCpus}}" {}'
+```
+
+Force‐stop and remove all of those “scheduler=true” containers:
+```
+docker rm -f $(docker ps -aq --filter label=scheduler=true)
 ```
 
 \
