@@ -61,7 +61,7 @@ class SchedulerController:
                -p {job.value} -i native -n 2"
         # include any memcached cores that have been freed
         freed = [c for c in self.all_memcached_cores if c not in self.memcached_cores]
-        cores  = sorted(self.batch_cores + freed)
+        cores = sorted(self.batch_cores + freed)
         cpuset = ",".join(str(c) for c in cores)
         c = self.client.containers.run(
             img, cmd, detach=True, name=job.value,
@@ -131,8 +131,7 @@ class SchedulerController:
             try: c.kill()
             except: pass
             finally: c.remove(force=True)
-        # log start
-        # self.LOG._log("start", Job.SCHEDULER)
+
         self.LOG.job_start(Job.MEMCACHED, [str(c) for c in self.memcached_cores], len(self.memcached_cores))
         self.adjust_mem_cores(self.memcached_cores)
         # start mem monitor thread
@@ -147,15 +146,6 @@ class SchedulerController:
             img = f"anakli/cca:{'splash2x' if job==Job.RADIX else 'parsec'}_{job.value}"
             cmd = f"./run -a run -S {'splash2x' if job==Job.RADIX else 'parsec'} \
                    -p {job.value} -i native -n 2"
-
-            # start it on cores 2,3
-            # container = self.client.containers.run(
-            #     img, cmd, detach=True,
-            #     name=job.value,
-            #     cpuset_cpus="2,3",
-            #     labels={"scheduler":"true"}
-            # )
-            # self.LOG.job_start(job, ["2","3"], 2)
 
             # compute freed memcached cores at launch time
             freed = [c for c in self.all_memcached_cores if c not in self.memcached_cores]
@@ -178,7 +168,6 @@ class SchedulerController:
 
         # done
         self.LOG.job_end(Job.MEMCACHED)
-        # self.LOG._log("end", Job.SCHEDULER)
         self.LOG.end()
 
 if __name__=='__main__':
