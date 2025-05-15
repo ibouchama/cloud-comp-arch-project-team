@@ -1,0 +1,82 @@
+2025-05-15T18:03:56.138343 start scheduler
+2025-05-15T18:03:56.148188 start memcached [0,1] 2
+2025-05-15T18:03:56.160860 update_cores memcached [0,1]
+2025-05-15T18:03:56.281315 update_cores memcached [0]
+2025-05-15T18:03:56.375970 start freqmine [2,3] 2
+2025-05-15T18:04:14.551041 update_cores memcached [0,1]
+2025-05-15T18:04:14.588188 update_cores freqmine [2,3]
+2025-05-15T18:04:34.687800 update_cores memcached [0]
+2025-05-15T18:04:34.710827 update_cores freqmine [1,2,3]
+2025-05-15T18:04:44.557922 update_cores memcached [0,1]
+2025-05-15T18:04:44.586618 update_cores freqmine [2,3]
+2025-05-15T18:07:34.675955 update_cores memcached [0]
+2025-05-15T18:07:34.701953 update_cores freqmine [1,2,3]
+2025-05-15T18:07:54.584593 update_cores memcached [0,1]
+2025-05-15T18:07:54.616951 update_cores freqmine [2,3]
+2025-05-15T18:08:04.670972 update_cores memcached [0]
+2025-05-15T18:08:04.693628 update_cores freqmine [1,2,3]
+2025-05-15T18:08:24.575278 update_cores memcached [0,1]
+2025-05-15T18:08:24.603921 update_cores freqmine [2,3]
+2025-05-15T18:08:54.972289 end freqmine
+2025-05-15T18:08:55.273245 start ferret [2,3] 2
+2025-05-15T18:09:14.604839 update_cores memcached [0]
+2025-05-15T18:09:14.633511 update_cores ferret [1,2,3]
+2025-05-15T18:09:34.719851 update_cores memcached [0,1]
+2025-05-15T18:09:34.756317 update_cores ferret [2,3]
+2025-05-15T18:09:44.608877 update_cores memcached [0]
+2025-05-15T18:09:44.633369 update_cores ferret [1,2,3]
+2025-05-15T18:09:54.700214 update_cores memcached [0,1]
+2025-05-15T18:09:54.755612 update_cores ferret [2,3]
+2025-05-15T18:10:24.683707 update_cores memcached [0]
+2025-05-15T18:10:24.708003 update_cores ferret [1,2,3]
+2025-05-15T18:11:04.658608 update_cores memcached [0,1]
+2025-05-15T18:11:04.691011 update_cores ferret [2,3]
+2025-05-15T18:11:54.684661 update_cores memcached [0]
+2025-05-15T18:11:54.707428 update_cores ferret [1,2,3]
+2025-05-15T18:12:35.245177 update_cores memcached [0,1]
+2025-05-15T18:12:35.282475 update_cores ferret [2,3]
+2025-05-15T18:12:37.493618 end ferret
+2025-05-15T18:12:37.737598 start canneal [2,3] 2
+2025-05-15T18:12:54.560599 update_cores memcached [0]
+2025-05-15T18:12:54.582988 update_cores canneal [1,2,3]
+2025-05-15T18:13:15.457752 update_cores memcached [0,1]
+2025-05-15T18:13:15.484378 update_cores canneal [2,3]
+2025-05-15T18:13:24.527979 update_cores memcached [0]
+2025-05-15T18:13:24.549140 update_cores canneal [1,2,3]
+2025-05-15T18:14:04.682200 update_cores memcached [0,1]
+2025-05-15T18:14:04.714094 update_cores canneal [2,3]
+2025-05-15T18:14:14.565514 update_cores memcached [0]
+2025-05-15T18:14:14.588423 update_cores canneal [1,2,3]
+2025-05-15T18:14:24.634345 update_cores memcached [0,1]
+2025-05-15T18:14:24.660436 update_cores canneal [2,3]
+2025-05-15T18:14:34.711382 update_cores memcached [0]
+2025-05-15T18:14:34.735541 update_cores canneal [1,2,3]
+2025-05-15T18:14:44.583179 update_cores memcached [0,1]
+2025-05-15T18:14:44.619871 update_cores canneal [2,3]
+2025-05-15T18:15:16.311917 end canneal
+2025-05-15T18:15:16.568018 start blackscholes [2,3] 2
+2025-05-15T18:15:24.579322 update_cores memcached [0]
+2025-05-15T18:15:24.599873 update_cores blackscholes [1,2,3]
+2025-05-15T18:16:05.938390 update_cores memcached [0,1]
+2025-05-15T18:16:05.962437 update_cores blackscholes [2,3]
+2025-05-15T18:16:25.439050 end blackscholes
+2025-05-15T18:16:25.760932 start vips [2,3] 2
+2025-05-15T18:16:44.719923 update_cores memcached [0]
+2025-05-15T18:16:45.592758 update_cores vips [1,2,3]
+2025-05-15T18:16:54.642319 update_cores memcached [0,1]
+2025-05-15T18:16:54.668313 update_cores vips [2,3]
+2025-05-15T18:17:24.598022 update_cores memcached [0]
+2025-05-15T18:17:24.623032 update_cores vips [1,2,3]
+2025-05-15T18:17:31.915264 end vips
+2025-05-15T18:17:32.163587 start radix [2,3] 2
+2025-05-15T18:17:34.870082 update_cores memcached [0,1]
+2025-05-15T18:17:34.898480 update_cores radix [2,3]
+2025-05-15T18:17:44.542205 update_cores memcached [0]
+2025-05-15T18:17:44.561724 update_cores radix [1,2,3]
+2025-05-15T18:17:56.361808 end radix
+2025-05-15T18:17:56.563822 start dedup [2,3] 2
+2025-05-15T18:18:04.637051 update_cores memcached [0,1]
+2025-05-15T18:18:04.665977 update_cores dedup [2,3]
+2025-05-15T18:18:19.630204 end dedup
+2025-05-15T18:18:19.630332 end memcached
+2025-05-15T18:18:19.630349 end scheduler
