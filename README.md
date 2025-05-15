@@ -4,7 +4,7 @@ To set-up the environment, create a new bucket and a new cluster within, run the
 - bash create_bucket.sh
 - gcloud auth login
 - gcloud auth application-default login
-- `bash create_cluster.sh` (or `bash create_cluster_2a.sh` for part2a)
+- `bash create_cluster.sh` or `bash create_cluster_2a.sh` for part2a or `bash create_cluster_3.sh` for part3 or `bash create_cluster_4.sh` for part4
 
 If you see the following retry on the terminal:
 ```
