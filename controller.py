@@ -140,6 +140,7 @@ class SchedulerController:
         # done
         self.LOG.job_end(Job.MEMCACHED)
         self.LOG._log("end", Job.SCHEDULER)
+        self.LOG.end()
 
 if __name__=='__main__':
     SchedulerController().run()
