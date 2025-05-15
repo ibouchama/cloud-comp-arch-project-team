@@ -2,7 +2,7 @@ import os
 from time import sleep
 import subprocess
 import psutil
-from datetime import datetime
+from datetime import datetime, time
 import docker
 from threading import Thread
 from scheduler_logger import SchedulerLogger, Job
@@ -137,6 +137,7 @@ class SchedulerController:
         # start mem monitor thread
         t = Thread(target=lambda: [self.monitor_mem() or sleep(self.interval) for _ in iter(int,1)], daemon=True)
         t.start()
+        time.sleep(self.interval)
 
         # ─── 3) Sequentially launch each batch job, waiting for it to finish
         while self.queue:
