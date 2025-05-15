@@ -18,14 +18,9 @@ class Job(Enum):
 
 
 class SchedulerLogger:
-    # def __init__(self):
-    #     start_date = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    #     self.file = open(f"log{start_date}.txt", "w")
-    #     self._log("start", Job.SCHEDULER)
-    def __init__(self):
+    def __init__(self, logfile: str | None = None):
         # if the user exported JOBS_LOG, use that; otherwise fall back to timestamped file
-        out_path = os.getenv("JOBS_LOG")
+        out_path = logfile or os.getenv("JOBS_LOG")
         if out_path:
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
             self.file = open(out_path, "w")
