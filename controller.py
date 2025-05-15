@@ -137,8 +137,9 @@ class SchedulerController:
         # start mem monitor thread
         t = Thread(target=lambda: [self.monitor_mem() or sleep(self.interval) for _ in iter(int,1)], daemon=True)
         t.start()
-        self.monitor_mem()        # run one pass, synchronously
-        time.sleep(self.interval) # let the taskset call complete
+        # self.monitor_mem()        # run one pass, synchronously
+        # time.sleep(self.interval) # let the taskset call complete
+
         # time.sleep(self.interval)
 
         # ─── 3) Sequentially launch each batch job, waiting for it to finish
