@@ -6,7 +6,7 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 RUN_NUM=$1
-GROUP=94
+GROUP=094
 RESULT_DIR="part_3_results_group_${GROUP}"
 
 mkdir -p "${RESULT_DIR}"

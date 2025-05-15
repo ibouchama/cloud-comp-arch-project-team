@@ -669,8 +669,7 @@ gcloud compute ssh ubuntu@memcache-server-74hk --zone=europe-west1-b \
 
 You should see memcached’s PID and that it’s listening on port 11211 (likely bound to the VM’s internal IP).
 
----
-
+\
 Use whichever of these fits your needs. If the Compute Engine status is `RUNNING` but the service isn’t active, you’ll need to start or troubleshoot memcached on the VM itself.
 
 
