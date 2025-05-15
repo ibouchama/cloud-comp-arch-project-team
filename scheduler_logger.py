@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 import urllib.parse
-import os
+
 
 LOG_STRING = "{timestamp} {event} {job_name} {args}"
 
@@ -18,25 +18,16 @@ class Job(Enum):
 
 
 class SchedulerLogger:
-    def __init__(self, logfile: str | None = None):
-        # if the user exported JOBS_LOG, use that; otherwise fall back to timestamped file
-        out_path = logfile or os.getenv("JOBS_LOG")
-        if out_path:
-            os.makedirs(os.path.dirname(out_path), exist_ok=True)
-            # self.file = open(out_path, "w")
-            self.file = open(out_path, "w", buffering=1)
+    def __init__(self):
+        start_date = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        else:
-            start_date = datetime.now().strftime("%Y%m%d_%H%M%S")
-            self.file = open(f"log{start_date}.txt", "w")
-        # log the scheduler-start event immediately
+        self.file = open(f"log{start_date}.txt", "w")
         self._log("start", Job.SCHEDULER)
 
     def _log(self, event: str, job_name: Job, args: str = "") -> None:
         self.file.write(
             LOG_STRING.format(timestamp=datetime.now().isoformat(), event=event, job_name=job_name.value,
                               args=args).strip() + "\n")
-        self.file.flush()
 
     def job_start(self, job: Job, initial_cores: list[str], initial_threads: int) -> None:
         assert job != Job.SCHEDULER, "You don't have to log SCHEDULER here"
