@@ -533,6 +533,8 @@ newgrp docker
 sudo apt install -y python3-docker python3-psutil
 ```
 
+Please go to Part4.3 if you're doing Part4.3.
+
 Clone or Pull (if any modification in controller.py):
 Clone your controller repo (part4 branch):
 ```
@@ -606,6 +608,71 @@ gcloud compute ssh ubuntu@memcache-server-9sh9 --zone europe-west1-b --command "
   mv ~/controller_v1.py ~/controller/
 "
 ```
+
+## Part4.3
+
+After the manual setup in the memcached vm.
+
+run:
+```
+bash run_experiment_4.3.sh
+```
+
+\
+Then on the local machine (open a new terminal ofc while running `run_experiment_4.3.sh`), you can verify that your memcached VM (“memcache-server-74hk”) is up **and** that the memcached **service** is actually running:
+
+
+### 1) Check the VM’s *Compute Engine* status
+
+```bash
+gcloud compute instances describe memcache-server-74hk \
+    --zone=europe-west1-b \
+    --format="value(status)"
+```
+
+It will print `RUNNING` if the instance itself is up (or `TERMINATED`, etc. otherwise).
+Alternatively you can list all your instances with:
+
+```bash
+gcloud compute instances list \
+    --filter="name=('memcache-server-74hk')"
+```
+
+which shows a table including the STATUS column.
+
+
+### 2) Check the memcached **service** on the VM
+
+SSH in and query systemd:
+
+```bash
+gcloud compute ssh ubuntu@memcache-server-74hk --zone=europe-west1-b \
+  --command="systemctl is-active memcached"
+```
+
+It should reply `active`.  For more detail, use:
+
+```bash
+gcloud compute ssh ubuntu@memcache-server-74hk --zone=europe-west1-b \
+  --command="systemctl status memcached"
+```
+
+
+### 3) Check that the process and port are listening
+
+Still over SSH, you can
+
+```bash
+gcloud compute ssh ubuntu@memcache-server-74hk --zone=europe-west1-b \
+  --command="pidof memcached && ss -plunt | grep 11211"
+```
+
+You should see memcached’s PID and that it’s listening on port 11211 (likely bound to the VM’s internal IP).
+
+---
+
+Use whichever of these fits your needs. If the Compute Engine status is `RUNNING` but the service isn’t active, you’ll need to start or troubleshoot memcached on the VM itself.
+
 
 \
 Last but not least, DELETE THE CLUSTER!!!!!!
