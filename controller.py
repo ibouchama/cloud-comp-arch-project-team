@@ -149,13 +149,13 @@ class SchedulerController:
                    -p {job.value} -i native -n 2"
 
             # start it on cores 2,3
-            container = self.client.containers.run(
-                img, cmd, detach=True,
-                name=job.value,
-                cpuset_cpus="2,3",
-                labels={"scheduler":"true"}
-            )
-            self.LOG.job_start(job, ["2","3"], 2)
+            # container = self.client.containers.run(
+            #     img, cmd, detach=True,
+            #     name=job.value,
+            #     cpuset_cpus="2,3",
+            #     labels={"scheduler":"true"}
+            # )
+            # self.LOG.job_start(job, ["2","3"], 2)
 
             # compute freed memcached cores at launch time
             freed = [c for c in self.all_memcached_cores if c not in self.memcached_cores]
