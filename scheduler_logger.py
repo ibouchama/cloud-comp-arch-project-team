@@ -23,7 +23,9 @@ class SchedulerLogger:
         out_path = logfile or os.getenv("JOBS_LOG")
         if out_path:
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
-            self.file = open(out_path, "w")
+            # self.file = open(out_path, "w")
+            self.file = open(out_path, "w", buffering=1)
+
         else:
             start_date = datetime.now().strftime("%Y%m%d_%H%M%S")
             self.file = open(f"log{start_date}.txt", "w")
@@ -34,6 +36,7 @@ class SchedulerLogger:
         self.file.write(
             LOG_STRING.format(timestamp=datetime.now().isoformat(), event=event, job_name=job_name.value,
                               args=args).strip() + "\n")
+        self.file.flush()
 
     def job_start(self, job: Job, initial_cores: list[str], initial_threads: int) -> None:
         assert job != Job.SCHEDULER, "You don't have to log SCHEDULER here"
