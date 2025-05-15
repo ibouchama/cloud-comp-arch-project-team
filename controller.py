@@ -116,12 +116,6 @@ class SchedulerController:
                 container.update(cpuset_cpus=cpus)
                 self.LOG.update_cores(job, [str(c) for c in sorted(new_job_cores)])
 
-            # if mem down to 1 core, give the *currently running* batch job a second core
-            # if len(desired)==1 and hasattr(self, 'current'):
-                # c = self.client.containers.get(self.current.value)
-                # c.update(cpuset_cpus="2,3")
-                # self.LOG.update_cores(self.current, ['2','3'])
-
     def run(self):
         # clean up
         for c in self.client.containers.list(all=True, filters={"label":["scheduler=true"]}):
