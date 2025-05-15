@@ -123,7 +123,7 @@ class SchedulerController:
             except: pass
             finally: c.remove(force=True)
         # log start
-        self.LOG._log("start", Job.SCHEDULER)
+        # self.LOG._log("start", Job.SCHEDULER)
         self.LOG.job_start(Job.MEMCACHED, [str(c) for c in self.memcached_cores], len(self.memcached_cores))
         self.adjust_mem_cores(self.memcached_cores)
         # start mem monitor thread
@@ -147,6 +147,8 @@ class SchedulerController:
                 labels={"scheduler":"true"}
             )
             self.LOG.job_start(job, ["2","3"], 2)
+            self.current = job
+
 
             # wait *here* until it exits
             container.wait()
@@ -154,7 +156,7 @@ class SchedulerController:
 
         # done
         self.LOG.job_end(Job.MEMCACHED)
-        self.LOG._log("end", Job.SCHEDULER)
+        # self.LOG._log("end", Job.SCHEDULER)
         self.LOG.end()
 
 if __name__=='__main__':
