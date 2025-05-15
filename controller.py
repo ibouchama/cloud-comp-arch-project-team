@@ -93,38 +93,6 @@ class SchedulerController:
             )
             self.LOG.job_start(job, [str(c) for c in self.batch_cores], threads)
 
-    def sync_first_time(self):
-        # adjust memcached cores based on load
-        util = self.mem_proc.cpu_percent(interval=self.interval)
-        if util > 80:
-            desired = [0,1]
-        elif util < 60:
-            desired = [0]
-        else:
-            desired = self.memcached_cores  # no change
-        if desired != self.memcached_cores:
-            # remember which memcached cores got freed
-            old = self.memcached_cores
-            freed = [c for c in old if c not in desired]
-
-            # reassign memcached cores
-            self.adjust_mem_cores(desired)
-
-            # now give (or take back) any freed core to/from the running batch job
-            if hasattr(self, 'current'):
-                job = self.current
-                container = self.client.containers.get(job.value)
-
-                # base batch cores always 2,3
-                new_job_cores = list(self.batch_cores)
-                # add any freed core when memcached shrank
-                new_job_cores += freed
-
-                # sort & apply
-                cpus = ",".join(str(c) for c in sorted(new_job_cores))
-                container.update(cpuset_cpus=cpus)
-                # self.LOG.update_cores(job, [str(c) for c in sorted(new_job_cores)])
-                
     def monitor_mem(self):
         # adjust memcached cores based on load
         util = self.mem_proc.cpu_percent(interval=self.interval)
