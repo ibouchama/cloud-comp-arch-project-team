@@ -94,27 +94,12 @@ class SchedulerController:
         else:
             desired = self.memcached_cores  # no change
         if desired != self.memcached_cores:
-            # remember which memcached cores got freed
-            old = self.memcached_cores
-            freed = [c for c in old if c not in desired]
-
-            # reassign memcached cores
             self.adjust_mem_cores(desired)
-
-            # now give (or take back) any freed core to/from the running batch job
-            if hasattr(self, 'current'):
-                job = self.current
-                container = self.client.containers.get(job.value)
-
-                # base batch cores always 2,3
-                new_job_cores = list(self.batch_cores)
-                # add any freed core when memcached shrank
-                new_job_cores += freed
-
-                # sort & apply
-                cpus = ",".join(str(c) for c in sorted(new_job_cores))
-                container.update(cpuset_cpus=cpus)
-                self.LOG.update_cores(job, [str(c) for c in sorted(new_job_cores)])
+            # if mem down to 1 core, give the *currently running* batch job a second core
+            if len(desired)==1 and hasattr(self, 'current'):
+                c = self.client.containers.get(self.current.value)
+                c.update(cpuset_cpus="2,3")
+                self.LOG.update_cores(self.current, ['2','3'])
 
     def run(self):
         # clean up
