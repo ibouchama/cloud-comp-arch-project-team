@@ -33,6 +33,9 @@ class SchedulerController:
 
         # default core pools
         self.memcached_cores = mem_cores or [0,1]
+        # remember the *full* memcached core set so we can detect freed cores
+        self.all_memcached_cores = list(self.memcached_cores)
+        
         self.batch_cores = batch_cores or [2,3]
         self.interval = interval
         # pid and psutil
@@ -56,11 +59,17 @@ class SchedulerController:
         img = f"anakli/cca:{'splash2x' if job==Job.RADIX else 'parsec'}_{job.value}"
         cmd = f"./run -a run -S {('splash2x' if job==Job.RADIX else 'parsec')} \
                -p {job.value} -i native -n 2"
+        # include any memcached cores that have been freed
+        freed = [c for c in self.all_memcached_cores if c not in self.memcached_cores]
+        cores  = sorted(self.batch_cores + freed)
+        cpuset = ",".join(str(c) for c in cores)
         c = self.client.containers.run(
             img, cmd, detach=True, name=job.value,
-            cpuset_cpus="2,3", labels={"scheduler":"true"}
+            cpuset_cpus=cpuset, labels={"scheduler":"true"}
         )
-        self.LOG.job_start(job, ["2","3"], 2)
+        # log with the actual cpuset we gave it
+        self.LOG.job_start(job, [str(c) for c in cores], 2)
+
         self.current = job
 
     def scheduling(self):
@@ -147,6 +156,19 @@ class SchedulerController:
                 labels={"scheduler":"true"}
             )
             self.LOG.job_start(job, ["2","3"], 2)
+
+            # compute freed memcached cores at launch time
+            freed = [c for c in self.all_memcached_cores if c not in self.memcached_cores]
+            cores  = sorted(self.batch_cores + freed)
+            cpuset = ",".join(str(c) for c in cores)
+            container = self.client.containers.run(
+                img, cmd, detach=True,
+                name=job.value,
+                cpuset_cpus=cpuset,
+                labels={"scheduler":"true"}
+            )
+            self.LOG.job_start(job, [str(c) for c in cores], 2)
+
             self.current = job
 
 
