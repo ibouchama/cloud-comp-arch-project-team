@@ -7,7 +7,7 @@ if [[ $# -ne 1 ]]; then
 fi
 RUN_NUM=$1
 GROUP=094
-RESULT_DIR="part_4_3_results_group_${GROUP}"
+RESULT_DIR="part_4_4_results_group_${GROUP}"
 mkdir -p "${RESULT_DIR}"
 
 # ─── Configuration ─────────────────────────────────────────────────────────────
@@ -80,8 +80,8 @@ gcloud compute ssh "${SSH_USER}@${CLIENT_MEASURE_VM}" \
      ./mcperf \
        -s ${MEMCACHED_IP} \
        -a ${AGENT_IP} \
-       --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 20 \
-       --qps_interval 10 --qps_min 5000 --qps_max 180000 \
+       --noload -T 8 -C 8 -D 4 -Q 1000 -c 8 -t 960 \
+       --qps_interval 5 --qps_min 5000 --qps_max 180000 \
        --qps_seed 2333
 
     END_TS=\$(date +%s%3N)
