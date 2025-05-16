@@ -507,7 +507,7 @@ bash run_experiment_4.1.sh 1
 ```
 Then clear cache before each run
 ```
-gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command "echo 'flush_all' | nc localhost 11211"
+gcloud compute ssh ubuntu@memcache-server-XXXX --zone europe-west1-b   --command "echo 'flush_all' | nc localhost 11211"
 ```
 Then
 ```
@@ -515,13 +515,13 @@ bash run_experiment_4.1.sh 2
 ```
 Then clear cache before each run
 ```
-gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command "echo 'flush_all' | nc localhost 11211"
+gcloud compute ssh ubuntu@memcache-server-XXXX --zone europe-west1-b   --command "echo 'flush_all' | nc localhost 11211"
 ```
 Then
 ```
 bash run_experiment_4.1.sh 3
 ```
-See results in `part_4a/` .
+See results in `part_4.1/` .
 
 
 \

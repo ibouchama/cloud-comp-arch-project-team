@@ -7,7 +7,7 @@ if [[ $# -ne 1 ]]; then
 fi
 RUN_NUM=$1
 GROUP=094
-RESULT_DIR="part_4a_t2c2"
+RESULT_DIR="part_4.1_t2c2"
 mkdir -p "${RESULT_DIR}"
 
 # ─── Configuration ─────────────────────────────────────────────────────────────
