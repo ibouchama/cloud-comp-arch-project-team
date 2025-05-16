@@ -528,11 +528,13 @@ Do the same things as in Part4.1, but with `run_experiment_4.1d.sh`, with 1) num
 
 See results in `part_4.1d/` .
 
-## Part4.2 and the Beginning of Part4.3
-In this part, set
+
+From part4.2, set
 > number of threads = 2 = number of cores
 
 Please refer to the section "Do manually in the memcached VM".
+
+## Part4.2 and the Beginning of Part4.3
 
 ### Still do manually in the memcached VM:
 In the memcached vm, get Docker, Git, and the Python bindings installed:
@@ -584,6 +586,7 @@ ps aux | grep controller.py
 tail -n 20 controller.log
 ```
 
+## Useful commands from part4.2 (do in the memcache vm)
 Verify Docker state:
 If you want to see only containers your scheduler are still running, run:
 ```
@@ -634,13 +637,13 @@ bash run_experiment_4.3.sh
 ```
 
 \
-Then on the local machine (open a new terminal ofc while running `run_experiment_4.3.sh`), you can verify that your memcache VM (“memcache-server-74hk”) is up **and** that the memcached **service** is actually running:
+Then on the local machine (open a new terminal ofc while running `run_experiment_4.3.sh`), you can verify that your memcache VM (“memcache-server-XXXX”) is up **and** that the memcached **service** is actually running:
 
 
 ### 1) Check the VM’s *Compute Engine* status
 
 ```bash
-gcloud compute instances describe memcache-server-74hk \
+gcloud compute instances describe memcache-server-XXXX \
     --zone=europe-west1-b \
     --format="value(status)"
 ```
@@ -650,7 +653,7 @@ Alternatively you can list all your instances with:
 
 ```bash
 gcloud compute instances list \
-    --filter="name=('memcache-server-74hk')"
+    --filter="name=('memcache-server-XXXX')"
 ```
 
 which shows a table including the STATUS column.
@@ -661,14 +664,14 @@ which shows a table including the STATUS column.
 SSH in and query systemd:
 
 ```bash
-gcloud compute ssh ubuntu@memcache-server-74hk --zone=europe-west1-b \
+gcloud compute ssh ubuntu@memcache-server-XXXX --zone=europe-west1-b \
   --command="systemctl is-active memcached"
 ```
 
 It should reply `active`.  For more detail, use:
 
 ```bash
-gcloud compute ssh ubuntu@memcache-server-74hk --zone=europe-west1-b \
+gcloud compute ssh ubuntu@memcache-server-XXXX --zone=europe-west1-b \
   --command="systemctl status memcached"
 ```
 
@@ -678,7 +681,7 @@ gcloud compute ssh ubuntu@memcache-server-74hk --zone=europe-west1-b \
 Still over SSH, you can
 
 ```bash
-gcloud compute ssh ubuntu@memcache-server-74hk --zone=europe-west1-b \
+gcloud compute ssh ubuntu@memcache-server-XXXX --zone=europe-west1-b \
   --command="pidof memcached && ss -plunt | grep 11211"
 ```
 
@@ -686,6 +689,14 @@ You should see memcached’s PID and that it’s listening on port 11211 (likely
 
 \
 Use whichever of these fits your needs. If the Compute Engine status is `RUNNING` but the service isn’t active, you’ll need to start or troubleshoot memcached on the VM itself.
+
+## Part4.4
+Do literally the same things as Part4.3.
+
+Please run:
+```
+bash run_experiment_4.4.sh
+```
 
 
 \
