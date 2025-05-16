@@ -4,7 +4,7 @@ To set-up the environment, create a new bucket and a new cluster within, run the
 - bash create_bucket.sh
 - gcloud auth login
 - gcloud auth application-default login
-- `bash create_cluster.sh` or `bash create_cluster_2a.sh` for part2a or `bash create_cluster_3.sh` for part3 or `bash create_cluster_4.sh` for part4
+- `bash create_cluster.sh` or `bash create_cluster_2a.sh` for part2a or `bash create_cluster_2b.sh` for part2b or `bash create_cluster_3.sh` for part3 or `bash create_cluster_4.sh` for part4
 
 If you see the following retry on the terminal:
 ```
@@ -225,6 +225,8 @@ chmod +x run_part2a_baseline_3x_avg.sh
 ```
 Each run's baseline (`real`) value is in `results2a_baseline_3x_avg` folder.
 
+Finally, the computation result is in `result2a_my_computation_for_avg.txt` .
+
 \
 Finally, the computation result is in `result2a_my_computation_for_avg.txt` .
 
@@ -420,9 +422,9 @@ kubectl get pods -o wide
 ```
 
 \
-The output is stored in `results.json` .
+The outputs are stored in the `txt` and `json` files.
 
-Please refer to `output_3.txt` to see the printed stuff of run_experiment_3.sh and things on the other terminal
+Please refer to `output_3.txt` to see the printed stuff of run_experiment_3.sh and things on the other terminal. ← This was for testing and confirming purpose.
 
 
 ## In the yaml files:
@@ -436,7 +438,6 @@ I've modified `memcache-t1-cpuset.yaml` and created 7 yaml files under `parsec-b
 
 
 \
-Finally, the computation result is in `result2a_my_computation_for_avg.txt` .
 
 Last but not least, DELETE THE CLUSTER!!!!!!
 ```
