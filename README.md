@@ -523,6 +523,10 @@ bash run_experiment_4.1.sh 3
 ```
 See results in `part_4.1/` .
 
+### Part4.1d
+Do the same things as in Part4.1, but with `run_experiment_4.1d.sh`, with 1) number of threads = 2, number of cores = 1; 2) number of threads = 2 = number of cores . To set up the number of threads and the number of cores, please refer to the section "Do manually in the memcached VM".
+
+See results in `part_4.1d/` .
 
 \
 In the memcached vm, get Docker, Git, and the Python bindings installed:
