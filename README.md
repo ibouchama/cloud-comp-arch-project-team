@@ -528,7 +528,7 @@ Do the same things as in Part4.1, but with `run_experiment_4.1d.sh`, with 1) num
 
 See results in `part_4.1d/` .
 
-## Part4.2
+## Part4.2 and the Beginning of Part4.3
 In this part, set
 > number of threads = 2 = number of cores
 
@@ -547,9 +547,9 @@ and
 sudo apt install -y python3-docker python3-psutil
 ```
 
-
 Please go to Part4.3 if you're doing Part4.3.
 
+\
 Clone or Pull (we do Pull if any modification in controller.py after first time Clone into this vm):
 Clone your controller repo (part4 branch):
 ```
@@ -626,7 +626,7 @@ gcloud compute ssh ubuntu@memcache-server-9sh9 --zone europe-west1-b --command "
 
 ## Part4.3
 
-After the manual setup in the memcached vm.
+After the manual setup in the memcache vm.
 
 run:
 ```
@@ -634,7 +634,7 @@ bash run_experiment_4.3.sh
 ```
 
 \
-Then on the local machine (open a new terminal ofc while running `run_experiment_4.3.sh`), you can verify that your memcached VM (“memcache-server-74hk”) is up **and** that the memcached **service** is actually running:
+Then on the local machine (open a new terminal ofc while running `run_experiment_4.3.sh`), you can verify that your memcache VM (“memcache-server-74hk”) is up **and** that the memcached **service** is actually running:
 
 
 ### 1) Check the VM’s *Compute Engine* status
