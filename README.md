@@ -32,11 +32,11 @@ After the API server is healthy, kops validate will stop retrying and report you
 
 \
   If you encounter an error when `bash create_cluster.sh` (same for creating other part's cluster), try the following set of commands:
-- gcloud auth login
-- gcloud auth application-default login
-- source env_setup.sh
-- export PROJECT=$(gcloud config get-value project)
-- export KOPS_STATE_STORE=gs://cca-eth-2025-group-94-ibouchama/
+- `gcloud auth login`
+- `gcloud auth application-default login`
+- `source env_setup.sh`
+- `export PROJECT=$(gcloud config get-value project)`
+- `export KOPS_STATE_STORE=gs://cca-eth-2025-group-94-<ethzid>/`
 
 Your cluster should now be created. Verify with the following command and get the names of the vms and nodes:
 ```
