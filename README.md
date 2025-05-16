@@ -31,18 +31,17 @@ Once you see your master (and parsec-server node) transition to `Ready`, our `va
 After the API server is healthy, kops validate will stop retrying and report your cluster as ready.
 
 \
-  If you encounter an error when `bash create_cluster.sh`, try the following set of commands:
+  If you encounter an error when `bash create_cluster.sh` (same for creating other part's cluster), try the following set of commands:
 - gcloud auth login
 - gcloud auth application-default login
 - source env_setup.sh
 - export PROJECT=$(gcloud config get-value project)
 - export KOPS_STATE_STORE=gs://cca-eth-2025-group-94-ibouchama/
 
-Your cluster should now be created. Verify with the following command and get the names of the vms:
-
-- `kubectl get nodes -o wide`
-  You should see 4 nodes: 1 master and 3 nodes\
-  8 nodes for 
+Your cluster should now be created. Verify with the following command and get the names of the vms and nodes:
+```
+kubectl get nodes -o wide
+```
 
 \
 Please go to section Part2a, Part4 if you're doing Part2a, Part4. Otherwise, continue.
@@ -224,8 +223,6 @@ chmod +x run_part2a_baseline_3x_avg.sh
 ./run_part2a_baseline_3x_avg.sh
 ```
 Each run's baseline (`real`) value is in `results2a_baseline_3x_avg` folder.
-
-Finally, the computation result is in `result2a_my_computation_for_avg.txt` .
 
 \
 Finally, the computation result is in `result2a_my_computation_for_avg.txt` .
@@ -445,9 +442,11 @@ kops delete cluster part3.k8s.local --yes
 ```
 
 # Part4
-ssh into the memcache VM
+
+## Do manually in the memcached VM:
+ssh into the memcached VM
 ```
-gcloud compute ssh memcache-server-xt2n --zone=europe-west1-b
+gcloud compute ssh memcache-server-XXXX --zone=europe-west1-b
 ```
 Then in this VM, do
 ```
@@ -499,11 +498,12 @@ On the local machine (use another terminal), do
 bash vm_setup_4.sh
 ```
 
+## Part4.1
 Then
-change the vm names in run_experiment_4a.sh (Same for run_experiment_4.2.sh. Results in `part_4.2_t2c2/`)\
+change the vm names in run_experiment_4.1.sh (Same for run_experiment_4.2.sh. Results in `part_4.2_t2c2/`)\
 and then 
 ```
-bash run_experiment_4a.sh 1
+bash run_experiment_4.1.sh 1
 ```
 Then clear cache before each run
 ```
@@ -511,7 +511,7 @@ gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command
 ```
 Then
 ```
-bash run_experiment_4a.sh 2
+bash run_experiment_4.1.sh 2
 ```
 Then clear cache before each run
 ```
@@ -519,7 +519,7 @@ gcloud compute ssh ubuntu@memcache-server-cgvn --zone europe-west1-b   --command
 ```
 Then
 ```
-bash run_experiment_4a.sh 3
+bash run_experiment_4.1.sh 3
 ```
 See results in `part_4a/` .
 
