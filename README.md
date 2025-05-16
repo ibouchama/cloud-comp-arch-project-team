@@ -528,19 +528,29 @@ Do the same things as in Part4.1, but with `run_experiment_4.1d.sh`, with 1) num
 
 See results in `part_4.1d/` .
 
-\
+## Part4.2
+In this part, set
+> number of threads = 2 = number of cores
+
+Please refer to the section "Do manually in the memcached VM".
+
+### Still do manually in the memcached VM:
 In the memcached vm, get Docker, Git, and the Python bindings installed:
 ```
 sudo apt update
 sudo apt install -y docker.io python3-pip git
 sudo usermod -aG docker $USER
 newgrp docker
+```
+and
+```
 sudo apt install -y python3-docker python3-psutil
 ```
 
+
 Please go to Part4.3 if you're doing Part4.3.
 
-Clone or Pull (if any modification in controller.py):
+Clone or Pull (we do Pull if any modification in controller.py after first time Clone into this vm):
 Clone your controller repo (part4 branch):
 ```
 cd ~
