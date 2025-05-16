@@ -586,7 +586,7 @@ ps aux | grep controller.py
 tail -n 20 controller.log
 ```
 
-## Useful commands from part4.2 (do in the memcache vm)
+## Useful commands (do in the memcache vm) from part4.2:
 Verify Docker state:
 If you want to see only containers your scheduler are still running, run:
 ```
